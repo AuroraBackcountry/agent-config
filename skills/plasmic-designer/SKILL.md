@@ -49,8 +49,8 @@ The studio base URL is `https://studio.plasmic.app` by default. Only use `http:/
 
    Fields (all required):
 
-   - `model` — Model name as known to the agent (e.g. `Codex-opus-4-7`, `anthropic/Codex-sonnet-4-6`, `gpt-5.3-codex`).
-   - `client` — AI client/CLI invoking the tool (e.g. `Codex`, `Codex@1.x`, `opencode`, `cursor`, `cline`).
+   - `model` — Model name as known to the agent (e.g. `claude-opus-4-7`, `anthropic/claude-sonnet-4-6`, `gpt-5.3-codex`).
+   - `client` — AI client/CLI invoking the tool (e.g. `claude-code`, `claude-code@1.x`, `opencode`, `cursor`, `cline`).
    - `skill` — Skill name and version being used (e.g. `plasmic-designer@1.1.0`, `unknown`).
 
    Pass `"unknown"` for any field you cannot reliably identify.
