@@ -1,0 +1,5 @@
+# agent setup: personal + generated (do not commit)
+CLAUDE.local.md
+AGENTS.override.md
+.claude/settings.local.json
+graphify-out/

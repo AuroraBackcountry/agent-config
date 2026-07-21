@@ -1,0 +1,7 @@
+---
+description: Core project rules
+alwaysApply: true
+---
+Follow AGENTS.md at the project root. It is the source of truth for this repo.
+Global user rules (Cursor Settings > Rules > User Rules) still apply and are inherited.
+Add Cursor-specific, path-scoped rules as additional .mdc files in this folder.
