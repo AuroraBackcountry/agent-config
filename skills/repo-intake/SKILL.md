@@ -1,21 +1,20 @@
 ---
 name: repo-intake
 description: >
-  End-to-end first-contact onboarding for a repo you've been handed, forked, or
-  cloned. Asks what you're here to do, maps the codebase (building a Graphify code
-  graph), writes the canonical AGENTS.md, records the project in your Obsidian
-  vault, and proposes a concrete first task so you can start working right away.
+  Get a repo ready to work in, doing the right thing based on what's already there.
+  For an unfamiliar repo: asks what you're here to do, maps the code (building a
+  Graphify graph), writes the canonical AGENTS.md, records it in your Obsidian vault,
+  and proposes a first task. For a repo that's already documented but not yet wired
+  into your memory layer (a real AGENTS.md/MASTER_PLAN but no vault space or code
+  graph): it just wires those in and leaves the existing docs alone.
 
-  Use whenever you're picking up an unfamiliar codebase: "get me set up on this
-  repo", "onboard me to this project", "I just cloned/forked this, help me
-  understand it", "map this repo", "set up context here", "create the AGENTS.md for
-  this repo", or any request to build a working model of a project before touching
-  code. Also trigger proactively when a repo has no AGENTS.md/CLAUDE.md/.cursorrules
-  and the user starts real work rather than one-off lookups.
+  Use whenever you pick up a codebase and want it set up: "get me set up on this repo",
+  "onboard me", "I cloned/forked this", "map this repo", "set up context here", "wire
+  this into the vault", "create the AGENTS.md". Also trigger proactively when a repo
+  has no AGENTS.md/CLAUDE.md/.cursorrules and you start real work.
 
-  Do NOT use to refresh an already-current context file. Do NOT trigger if the repo
-  already has a filled-in AGENTS.md unless asked to redo intake. Empty-structure
-  scaffolding is /scaffold's job; this fills in the content and wires up memory.
+  NOT for refreshing already-current memory (that's memory-checkpoint) or greenfield
+  scaffolding (that's /scaffold). If a repo is already documented AND wired, nothing to do.
 ---
 
 # Repo Intake
@@ -54,7 +53,20 @@ detailed brief; work out the situation yourself.
 - **Empty folder, no URL:** ask for the repo URL or a local path -- one question, then continue.
 - **A local path was given:** treat that as the target and continue.
 
-With the code in place, go to Phase 1.
+With the code in place, pick the mode below.
+
+## Which mode: onboard, wire, or nothing
+
+Check what memory already exists, then route:
+- **No real context file** (no AGENTS.md/CLAUDE.md/.cursorrules, or only a `/scaffold` stub) ->
+  **full onboard**: do Phases 1-7 below.
+- **A real, filled-in context file already** (AGENTS.md, CLAUDE.md, a MASTER_PLAN/STATUS system)
+  but **not wired into the memory layer** (no `~/Vault/projects/<repo>/`, or no `graphify-out/`) ->
+  **wire-only**: skip the onboarding phases and jump to "Wire an already-documented repo" near the
+  end. Do NOT re-onboard or rewrite the existing docs; they're the source of truth and probably
+  better than anything you'd write.
+- **Already documented AND wired** (context file + vault space + graph): nothing to onboard. If the
+  memory looks stale, hand off to `memory-checkpoint`; otherwise just say it's set.
 
 ## Phase 1: Capture intent (ask first)
 
@@ -223,6 +235,24 @@ to start it now, or -- if it's big enough to warrant a real plan -- hand off to 
 skill (superpowers' brainstorming or writing-plans). Don't over-plan here; the job is to
 remove the "where do I even start" friction.
 
+## Wire an already-documented repo (wire-only mode)
+
+The repo already explains itself (a real AGENTS.md, maybe a MASTER_PLAN/STATUS system). Don't
+touch that -- it's the source of truth and better than anything you'd write. Just connect it to
+the memory layer:
+
+1. **Build the code graph** if it's missing: `/graphify .` (writes `graphify-out/`, gitignored).
+2. **Create the vault project space** at `~/Vault/projects/<repo>/` with a MOC that *points at*
+   the repo's own docs (AGENTS.md, MASTER_PLAN, STATUS, ARCHITECTURE) -- an index, not a
+   re-summary. Never duplicate the north star. Link the key modules from the graph report, list
+   any open questions, and add a "Next" line only if the plan makes the next step obvious.
+3. **Quick drift check** (the same doctor pass as memory-checkpoint): if `CLAUDE.md` and
+   `AGENTS.md` are duplicate copies, collapse `CLAUDE.md` to `@AGENTS.md`; fix any find-replace
+   corruption (verify suspect tokens against the code); flag stale sections -- but never edit an
+   immutable master plan or locked spec.
+4. Report what you wired (graph built, vault MOC created, anything reconciled). The repo is now in
+   the memory layer without a re-onboarding.
+
 ## Edge cases
 
 - **Monorepo:** multiple distinct projects (packages/, apps/, services/) -- ask whether they
@@ -231,8 +261,10 @@ remove the "where do I even start" friction.
   questions, and flag that the file is inference-heavy.
 - **"Just set it up":** run Phase 2 silently, write the best `AGENTS.md` from the code, flag
   guessed sections, still create the vault space and propose a first task.
-- **Already has a filled-in AGENTS.md:** don't trigger -- this is first-contact only. A
-  scaffolded stub (just template placeholders) doesn't count; fill it. To redo over a real
-  file, rename the old one to `AGENTS.md.bak` first.
+- **Already has a filled-in AGENTS.md:** don't re-onboard. If it's not wired into the memory
+  layer yet, use wire-only mode above (graph + vault, leave the docs alone). A scaffolded stub
+  (just template placeholders) doesn't count as filled in -- do a full onboard to fill it. Only
+  redo a full onboard over a real file if the user explicitly asks, renaming the old to
+  `AGENTS.md.bak` first.
 - **Tools missing:** if Graphify or the obsidian skills aren't installed, say so, skip that
   step, and continue -- the intake still works, just with less automation.
