@@ -36,3 +36,9 @@ Use judgment, and any project can override a point with an explicit note.
 ## Projects
 - Use the standard layout: `/scaffold` sets it up, `repo-intake` onboards an unfamiliar repo, `memory-checkpoint` locks in state before compacting.
 - Decisions go to `~/Vault/decisions`, session notes to `~/Vault/logs`.
+
+## Memory and source of truth
+- Four layers, each a different question. Rules: AGENTS.md + overlays (how I behave). Knowledge: the Obsidian vault (intent, decisions, status). Structure: Graphify (`graphify-out/`), a derived code map. History: git (the immutable record).
+- `repo-intake` and `memory-checkpoint` orchestrate these layers; they are not sources of truth.
+- On conflict: for how code behaves, current source and passing tests win; for intent, current decision notes and locked specs win. Graphify is derived and lags uncommitted changes, so treat it as a map, not ground truth. `MASTER_PLAN` and locked specs stay immutable during routine work.
+- Orienting: small or familiar repo, read source first; large or unfamiliar, query Graphify for structure, then confirm behavior in source before changing anything. Pull the relevant vault note when intent or history matters.
