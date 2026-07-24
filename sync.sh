@@ -3,6 +3,10 @@
 # Both Claude and Codex globals are BAKED (concatenated), not imported, because
 # @import is unreliable for home/absolute paths (and this home path has a space).
 # Per-repo CLAUDE.md still uses the reliable relative @AGENTS.md import.
+#
+# Shared always-on rules from rules/ (currently just the pinned ponytail snapshot)
+# are baked in between AGENTS.md and the tool overlay. The [ -f ] guard keeps a
+# set -e run from half-writing a global if the file is ever removed.
 set -euo pipefail
 
 AGENTS_HOME="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -13,6 +17,10 @@ mkdir -p "$HOME/.claude"
 {
   printf '%s\n\n' "$MARKER"
   cat "$AGENTS_HOME/AGENTS.md"
+  if [ -f "$AGENTS_HOME/rules/ponytail.md" ]; then
+    printf '\n---\n\n'
+    cat "$AGENTS_HOME/rules/ponytail.md"
+  fi
   printf '\n---\n\n'
   cat "$AGENTS_HOME/overlays/claude.md"
 } > "$HOME/.claude/CLAUDE.md"
@@ -23,11 +31,15 @@ mkdir -p "$HOME/.codex"
 {
   printf '%s\n\n' "$MARKER"
   cat "$AGENTS_HOME/AGENTS.md"
+  if [ -f "$AGENTS_HOME/rules/ponytail.md" ]; then
+    printf '\n---\n\n'
+    cat "$AGENTS_HOME/rules/ponytail.md"
+  fi
   printf '\n---\n\n'
   cat "$AGENTS_HOME/overlays/codex.md"
 } > "$HOME/.codex/AGENTS.md"
 echo "wrote $HOME/.codex/AGENTS.md"
 
 echo
-echo "Cursor is manual: paste AGENTS.md + overlays/cursor.md into"
+echo "Cursor is manual: paste AGENTS.md + rules/ponytail.md + overlays/cursor.md into"
 echo "Cursor Settings > Rules > User Rules (Cursor has no on-disk global file)."
