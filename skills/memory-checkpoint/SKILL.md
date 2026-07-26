@@ -73,6 +73,13 @@ plus a short note, and suggest `/scaffold` or `repo-intake` to set up real memor
 Update each mutable surface with the verified state:
 - **Status doc:** what's built now, what changed this session, current phase progress, known
   gaps, the next concrete step. Match the doc's existing structure and headings exactly.
+  Write STATE, not lifecycle: the current-state block says what is true *now*, present tense,
+  edited in place. Never leave `draft PR` / `on branch` / `held` / `will merge` / `redeploy
+  on merge` in it -- the moment a PR merges those clauses are false and nothing re-edits them.
+  Branch/PR lifecycle belongs in git and the PR. If the doc keeps a dated changelog, its
+  entries are frozen history (past tense: `opened #89 as draft`), and the top-of-file
+  current-state block is the ONLY thing a reader should trust. Reconcile stale text in place;
+  don't prepend a newer banner that silently supersedes an old one.
 - **Vault:** append a dated entry to the session log, record any architectural decisions
   (one line each: date, decision, why), and refresh the MOC's "Next".
 - Keep it tight and factual. State current truth -- no "previously X, now Y" narration, no
@@ -91,7 +98,12 @@ While you're in the memory files, make sure they're still correct:
   against the actual code and fix it. A memory that points at `Codex.ts` when the file is
   `claude.ts` sends every future session hunting a ghost.
 - **Staleness:** flag sections that no longer match the code or the plan. Fix the mutable
-  ones; for locked docs, flag rather than edit.
+  ones; for locked docs, flag rather than edit. Grep the status doc for merge-pending
+  phrasing (`draft PR`, `on branch`, `held`, `will merge`, `redeploy on merge`, `not built`,
+  `pending`) and cross-check each against `git`/`gh`: if the PR is merged, rewrite the clause
+  to present-tense state in place and demote any history to the changelog. A superseded-but-
+  left-in-place banner IS drift -- reconcile it, don't stack a new one on top. Also re-derive
+  counts/inventories (e.g. `N functions deployed`) from the code, not the previous banner.
 
 Report what you reconciled. If nothing's off, say so and move on -- don't invent problems.
 
