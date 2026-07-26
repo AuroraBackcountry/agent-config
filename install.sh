@@ -43,17 +43,21 @@ fi
 ln -s "$AGENTS_HOME/skills" "$skills_link"
 echo "linked $skills_link -> $AGENTS_HOME/skills"
 
-# global slash commands (e.g. /scaffold, /save, /resume)
+# global slash commands (e.g. /scaffold, /save, /resume): symlink per-file so edits in
+# ~/.agents go live without a re-install (like skills). Per-file, not a dir symlink,
+# because ~/.claude/commands may also hold commands from other sources.
 for cmd in "$AGENTS_HOME"/commands/*.md; do
   [ -e "$cmd" ] || continue
   name="$(basename "$cmd")"
   dest="$HOME/.claude/commands/$name"
-  if [ -f "$dest" ] && ! cmp -s "$cmd" "$dest"; then
+  if [ -L "$dest" ]; then
+    rm "$dest"
+  elif [ -e "$dest" ]; then
     mv "$dest" "$dest.bak.$STAMP"
     echo "backed up $dest -> $dest.bak.$STAMP"
   fi
-  cp "$cmd" "$dest"
-  echo "installed command /${name%.md}"
+  ln -s "$cmd" "$dest"
+  echo "linked command /${name%.md}"
 done
 echo
 
