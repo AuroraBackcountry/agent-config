@@ -1,15 +1,6 @@
 {
   "version": 3,
   "skills": {
-    "find-skills": {
-      "source": "vercel-labs/skills",
-      "sourceType": "github",
-      "sourceUrl": "https://github.com/vercel-labs/skills.git",
-      "skillPath": "skills/find-skills/SKILL.md",
-      "skillFolderHash": "76a98a285cb0434f3d39e1a873823556330e398b",
-      "installedAt": "2026-07-21T16:36:43.493Z",
-      "updatedAt": "2026-07-21T16:36:43.493Z"
-    },
     "defuddle": {
       "source": "kepano/obsidian-skills",
       "sourceType": "github",
@@ -18,24 +9,6 @@
       "skillFolderHash": "db0b775af7e7d603f59fa2b67bdef615baf1a48f",
       "installedAt": "2026-07-21T17:35:57.966Z",
       "updatedAt": "2026-07-21T17:35:57.966Z"
-    },
-    "json-canvas": {
-      "source": "kepano/obsidian-skills",
-      "sourceType": "github",
-      "sourceUrl": "https://github.com/kepano/obsidian-skills.git",
-      "skillPath": "skills/json-canvas/SKILL.md",
-      "skillFolderHash": "9df7971db7ffebf96f2a207840b9f4765aa11b04",
-      "installedAt": "2026-07-21T17:35:57.968Z",
-      "updatedAt": "2026-07-21T17:35:57.968Z"
-    },
-    "obsidian-bases": {
-      "source": "kepano/obsidian-skills",
-      "sourceType": "github",
-      "sourceUrl": "https://github.com/kepano/obsidian-skills.git",
-      "skillPath": "skills/obsidian-bases/SKILL.md",
-      "skillFolderHash": "f3330f27de4d7907ead57d0f48672f4d3280bb77",
-      "installedAt": "2026-07-21T17:35:57.968Z",
-      "updatedAt": "2026-07-21T17:35:57.968Z"
     },
     "obsidian-cli": {
       "source": "kepano/obsidian-skills",
