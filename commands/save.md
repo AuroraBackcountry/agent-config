@@ -15,4 +15,7 @@ Write a concise session record to my vault (default ~/Vault, or $VAULT_DIR if se
 4. Refresh ~/Vault/projects/<project>/README.md only as an index: pointers to STATUS.md /
    AGENTS.md and a one-line "Next", never a copy of current build state (that lives in
    STATUS.md and goes stale here).
-5. Keep it terse. Create any missing folders. Confirm the exact paths you wrote.
+5. The SessionEnd trace (logs/_traces-*.md) already records what changed mechanically
+   (branch, diffs, transcript). This log's value is what no hook can write: decisions,
+   why, and open threads. Don't restate diffs.
+6. Keep it terse. Create any missing folders. Confirm the exact paths you wrote.

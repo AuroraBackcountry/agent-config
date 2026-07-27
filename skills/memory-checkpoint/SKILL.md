@@ -80,8 +80,9 @@ Update each mutable surface with the verified state:
   entries are frozen history (past tense: `opened #89 as draft`), and the top-of-file
   current-state block is the ONLY thing a reader should trust. Reconcile stale text in place;
   don't prepend a newer banner that silently supersedes an old one.
-- **Vault:** append a dated entry to the session log, record any architectural decisions
-  (one line each: date, decision, why), and refresh the MOC's "Next".
+- **Vault:** refresh the MOC's "Next" pointer only. Session logs and decisions belong to
+  `/save` -- append a dated log entry here ONLY if no `/save` ran this session and
+  something durable would otherwise be lost. Checkpoint owns state; `/save` owns history.
 - Keep it tight and factual. State current truth -- no "previously X, now Y" narration, no
   filler. The file earns its keep by being scannable next session.
 
