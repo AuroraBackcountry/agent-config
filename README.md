@@ -8,11 +8,13 @@ local vault memory layer.
 
     AGENTS.md            Canonical rules: how I work. The shared 90%.
     overlays/            Per-tool notes (the 10%): claude, codex, cursor.
-    rules/               Optional modular shared rules.
-    skills/              Skills I author (symlinked into ~/.claude/skills).
+    rules/               Pinned shared rules baked into the globals by sync.sh (ponytail).
+    skills/              Skills, authored + vendored via npx skills (symlinked into
+                         ~/.claude/skills; .skill-lock.json tracks vendored sources).
     plugins.md           Marketplace plugins to install (not vendored here).
-    commands/            Global slash commands: /scaffold, /save, /resume.
-    hooks/               session-end.sh: breadcrumb logger into the vault.
+    commands/            Global slash commands: /scaffold, /save, /recall.
+    hooks/               session-end.sh (vault breadcrumb + session trace) and
+                         graphify-post-commit.sh (background code-graph refresh).
     templates/project/   The standard per-repo skeleton.
     scaffold.sh          Lay the standard layout into a project (non-destructive).
     sync.sh              Regenerate the global Claude + Codex files from canonical.
@@ -33,7 +35,7 @@ content, move it aside first:
 `install.sh` is safe to re-run. It backs up any existing file to `<file>.bak.<timestamp>`
 before writing and never deletes your data.
 
-Manual step for Cursor: paste `AGENTS.md` + `overlays/cursor.md` into
+Manual step for Cursor: paste `AGENTS.md` + `rules/ponytail.md` + `overlays/cursor.md` into
 Cursor Settings > Rules > User Rules (Cursor has no on-disk global file).
 
 ## How the globals are wired
@@ -51,7 +53,7 @@ generated file. Per-repo `CLAUDE.md` still uses the reliable relative `@AGENTS.m
   Codex globals regenerate. Re-paste into Cursor only if you changed the cursor overlay.
 - Save context: `/save` writes a session log + decisions into `~/Vault`. The SessionEnd
   hook also drops a breadcrumb automatically.
-- Resume context: `/resume` reads the recent vault notes for the current project.
+- Resume context: `/recall` reads the recent vault notes for the current project.
 - Add a marketplace plugin: install via `/plugin`, then record it in `plugins.md`.
 
 ## Vault
