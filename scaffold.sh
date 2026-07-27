@@ -30,3 +30,20 @@ if [ "$added" -eq 0 ]; then
 else
   echo "scaffolded $added file(s) into $TARGET"
 fi
+
+# Install the graphify post-commit hook. The hook line calls the central
+# script so future improvements propagate without re-running scaffold.
+if [ -d "$TARGET/.git" ]; then
+  hook="$TARGET/.git/hooks/post-commit"
+  line='bash "$HOME"/.agents/hooks/graphify-post-commit.sh'
+  if [ -f "$hook" ]; then
+    if ! grep -q graphify-post-commit.sh "$hook"; then
+      printf '%s\n' "$line" >> "$hook"
+      echo "added  graphify line to existing post-commit hook"
+    fi
+  else
+    printf '#!/usr/bin/env bash\n%s\n' "$line" > "$hook"
+    echo "added  .git/hooks/post-commit (graphify)"
+  fi
+  chmod +x "$hook"
+fi
