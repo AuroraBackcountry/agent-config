@@ -1,6 +1,6 @@
 # Claude overlay
 
-Applies only when the agent is Claude Code. Appended after AGENTS.md via @import.
+Applies only when the agent is Claude Code. Baked after AGENTS.md by sync.sh.
 
 Strengths to lean on:
 - Long-context reasoning and multi-file changes.

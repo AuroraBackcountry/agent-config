@@ -16,7 +16,7 @@ Control Plasmic Studio through Chrome DevTools MCP to build and modify productio
 
 `$ARGUMENTS` should contain a **project ID** as the first word, followed by the design request.
 
-Example: `/plasmic-designer j2Bm3mrbGNKsXVW3Wf5KpP Add a hero section to the Homepage`
+Example: `/plasmic-designer aBcDeFgHiJkLmNoPqRsT12 Add a hero section to the Homepage`
 
 If no project ID is provided, or if the conversation references multiple projects and it's unclear which one to use, ask the user to confirm the project ID before proceeding.
 
