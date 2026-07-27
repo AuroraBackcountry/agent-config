@@ -113,7 +113,7 @@ Close the loop:
 - List exactly what you wrote or fixed (paths plus a one-line summary each).
 - Confirm the memory now reflects reality.
 - Tell the user it's safe to `/compact` (or clear / step away) and continue. Next session,
-  `/resume`, the vault, or `STATUS.md` will rehydrate the state.
+  `/recall`, the vault, or `STATUS.md` will rehydrate the state.
 
 ## Notes and edge cases
 

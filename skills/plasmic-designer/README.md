@@ -29,7 +29,7 @@ Before you start, confirm you have the following:
 
 - **Google Chrome** (current stable, or Chrome for Testing).
 
-- **A Plasmic account** and a project open at [studio.plasmic.app](https://studio.plasmic.app). You'll need your **Project ID** — it's the string after `/projects/` in your Plasmic URL. For example, in `https://studio.plasmic.app/projects/j2Bm3mrbGNKsXVW3Wf5KpP` the project ID is `j2Bm3mrbGNKsXVW3Wf5KpP`.
+- **A Plasmic account** and a project open at [studio.plasmic.app](https://studio.plasmic.app). You'll need your **Project ID** — it's the string after `/projects/` in your Plasmic URL. For example, in `https://studio.plasmic.app/projects/aBcDeFgHiJkLmNoPqRsT12` the project ID is `aBcDeFgHiJkLmNoPqRsT12`.
 
 - **An AI assistant that supports MCP.** This guide covers:
   - **CLIs**: Claude Code, Codex, Cursor, Opencode

@@ -43,7 +43,7 @@ fi
 ln -s "$AGENTS_HOME/skills" "$skills_link"
 echo "linked $skills_link -> $AGENTS_HOME/skills"
 
-# global slash commands (e.g. /scaffold, /save, /resume): symlink per-file so edits in
+# global slash commands (e.g. /scaffold, /save, /recall): symlink per-file so edits in
 # ~/.agents go live without a re-install (like skills). Per-file, not a dir symlink,
 # because ~/.claude/commands may also hold commands from other sources.
 for cmd in "$AGENTS_HOME"/commands/*.md; do
@@ -105,7 +105,7 @@ bash "$AGENTS_HOME/sync.sh"
 
 echo
 echo "Done."
-echo "Manual step for Cursor: paste AGENTS.md + overlays/cursor.md into"
+echo "Manual step for Cursor: paste AGENTS.md + rules/ponytail.md + overlays/cursor.md into"
 echo "  Cursor Settings > Rules > User Rules."
 echo
 echo "Any backups use the suffix .bak.$STAMP and were left in place."

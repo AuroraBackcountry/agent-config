@@ -1,81 +1,170 @@
 # agent-config
 
-My portable agent setup: one source of truth for how I work, shared across Claude Code,
-Codex, and Cursor, plus a standard project layout I can scaffold into any repo and a
-local vault memory layer.
+A portable, personal AI-agent setup you can fork and make your own: **one canonical
+rules file** shared across Claude Code, Codex, and Cursor, plus skills, slash commands,
+session hooks, a project scaffold, and a plain-markdown memory layer that survives
+between sessions.
+
+Written by one solo developer for real daily use, published so anyone can adopt the
+structure. The rules content is mine — the point is that you replace it with yours.
+
+## The idea: four memory layers
+
+AI coding sessions forget everything. This repo organizes durable memory into four
+layers, each answering a different question:
+
+| Layer | Question | Lives in |
+|---|---|---|
+| **Rules** | How should the agent behave? | `AGENTS.md` + per-tool overlays, baked into each tool's global config by `sync.sh` |
+| **Knowledge** | What was decided, and why? | A local vault (`~/Vault`) — plain markdown folders; Obsidian is a nice viewer, not a requirement |
+| **Structure** | How does the code connect? | A derived code graph per repo (`graphify-out/`, gitignored), kept fresh by a post-commit hook |
+| **History** | What actually happened? | git — the immutable record |
+
+Skills like `repo-intake` (onboard a repo) and `memory-checkpoint` (reconcile state
+before compacting context) orchestrate the layers; they are not sources of truth.
+One convention does a lot of work here: **status surfaces record state, not
+lifecycle** — present-tense facts that stay true, never "draft PR / merge pending"
+phrasing that a merge silently invalidates.
 
 ## What's here
 
-    AGENTS.md            Canonical rules: how I work. The shared 90%.
+    AGENTS.md            Canonical rules: how I work. The shared 90%. REPLACE WITH YOURS.
     overlays/            Per-tool notes (the 10%): claude, codex, cursor.
     rules/               Pinned shared rules baked into the globals by sync.sh (ponytail).
     skills/              Skills, authored + vendored via npx skills (symlinked into
                          ~/.claude/skills; .skill-lock.json tracks vendored sources).
-    plugins.md           Marketplace plugins to install (not vendored here).
     commands/            Global slash commands: /scaffold, /save, /recall.
     hooks/               session-end.sh (vault breadcrumb + session trace) and
                          graphify-post-commit.sh (background code-graph refresh).
-    templates/project/   The standard per-repo skeleton.
+    templates/project/   The standard per-repo skeleton (AGENTS.md, STATUS.md, .claude/).
+    plugins.md           Marketplace plugins to install (not vendored here).
     scaffold.sh          Lay the standard layout into a project (non-destructive).
     sync.sh              Regenerate the global Claude + Codex files from canonical.
     install.sh           Wire everything into this machine (backs up first).
 
+**Tool support is not symmetrical.** The shared rules reach all three tools. Skills,
+slash commands, hooks, and the vault workflow (`/save`, `/recall`) are Claude
+Code-only. Codex gets one baked rules file; Cursor gets a manual paste.
+
+## Prerequisites
+
+Required: `bash`, `git`, and [Claude Code](https://claude.com/claude-code) (the main
+consumer — without it the install still succeeds but nothing reads the files).
+
+Optional — each degrades gracefully if absent:
+
+- **`graphify` CLI** (`pip install graphifyy` or `uv tool install graphifyy`) — powers
+  the code-graph layer and the post-commit refresh hook. Without it the hook silently
+  no-ops and you simply have no Structure layer.
+- **`python3`** — enriches the session-end trace (transcript parsing). Breadcrumbs work without it.
+- **`jq`** — only used to merge the SessionEnd hook into an *existing*
+  `~/.claude/settings.json`; without it you get the JSON to paste by hand.
+- **Node** — only for updating vendored skills via [`npx skills`](https://github.com/vercel-labs/skills).
+- **Obsidian** — optional viewer for the vault. The vault is just markdown folders.
+
+Platform: macOS and Linux. The graph-refresh hook's CPU guard is macOS-only (it
+silently skips on Linux — see the `ponytail:` note in `hooks/graphify-post-commit.sh`).
+Windows: use WSL; native Git-Bash symlinks are unreliable.
+
 ## Install
 
-This repo is meant to live at `~/.agents`. If you already have a `~/.agents` with other
-content, move it aside first:
+> **Personalize before you install.** `install.sh` bakes `AGENTS.md` into your global
+> `~/.claude/CLAUDE.md` and `~/.codex/AGENTS.md`, and swaps your `~/.claude/skills`
+> and commands for this repo's (existing files are backed up to
+> `<file>.bak.<timestamp>`, never deleted — but your own rules stop applying until
+> you restore them).
 
-    # only if ~/.agents already exists with other stuff
-    mv ~/.agents ~/.agents.old
+```bash
+# 1. Fork this repo, then clone your fork to ~/.agents
+git clone https://github.com/<you>/agent-config ~/.agents
+cd ~/.agents
 
-    git clone <your-private-remote> ~/.agents
-    cd ~/.agents
-    ./install.sh
+# 2. Make it yours (see next section) — edit AGENTS.md at minimum
 
-`install.sh` is safe to re-run. It backs up any existing file to `<file>.bak.<timestamp>`
-before writing and never deletes your data.
+# 3. Wire it in (re-runnable; backs up anything it touches)
+./install.sh
+```
 
-Manual step for Cursor: paste `AGENTS.md` + `rules/ponytail.md` + `overlays/cursor.md` into
-Cursor Settings > Rules > User Rules (Cursor has no on-disk global file).
+Manual step for Cursor: paste `AGENTS.md` + `rules/ponytail.md` + `overlays/cursor.md`
+into Cursor Settings > Rules > User Rules (Cursor has no on-disk global file).
+
+## Make it yours
+
+- **`AGENTS.md`** — rewrite *Who I am*, *Talking to me*, *Tech*, *Writing*, and
+  *Judgment calls* in your own voice. Keep *Projects* and *Memory and source of truth*
+  if you adopt the memory system — the skills depend on those conventions. (References
+  to `MASTER_PLAN` / locked specs apply only to repos that keep one.)
+- **`overlays/*.md`** — per-tool preferences; edit to taste.
+- **`rules/ponytail.md`** — an opinionated vendored coding ruleset baked into every
+  session. Delete it if it's not your style (`sync.sh` handles its absence).
+- **Vault location** — defaults to `~/Vault`; override with `VAULT_DIR`.
+- **`plugins.md`** — my marketplace shopping list; replace with yours.
+- **`skills/`** — prune what you won't use (`plasmic-designer` only matters if you use
+  Plasmic; `graphify` needs the CLI installed). `.skill-lock.json` tracks what's
+  vendored from where.
+
+Then run `./sync.sh` to regenerate the globals whenever you change rules or overlays.
 
 ## How the globals are wired
 
 The global Claude (`~/.claude/CLAUDE.md`) and Codex (`~/.codex/AGENTS.md`) files are
-GENERATED by `sync.sh` (canonical + the tool's overlay, concatenated). They are baked,
-not imported, because Claude's `@import` is unreliable for home/absolute paths and silently
-skips tilde paths. A generated header marks them; edit `AGENTS.md` or an overlay, never the
-generated file. Per-repo `CLAUDE.md` still uses the reliable relative `@AGENTS.md` import.
+GENERATED by `sync.sh` (canonical + pinned rules + the tool's overlay, concatenated).
+They are baked, not imported, because Claude's `@import` was unreliable for
+home/absolute paths when this was built. A generated header marks them; edit
+`AGENTS.md` or an overlay, never the generated file. Per-repo `CLAUDE.md` still uses
+the reliable relative `@AGENTS.md` import.
 
 ## Daily use
 
-- New project: run `/scaffold` in Claude, or `~/.agents/scaffold.sh` in the repo.
-- Change how you work: edit `AGENTS.md` (or an overlay), then run `./sync.sh`. Claude and
-  Codex globals regenerate. Re-paste into Cursor only if you changed the cursor overlay.
-- Save context: `/save` writes a session log + decisions into `~/Vault`. The SessionEnd
-  hook also drops a breadcrumb automatically.
+- New project: run `/scaffold` in Claude Code, or `~/.agents/scaffold.sh` in the repo.
+  It lays down `AGENTS.md`, a `STATUS.md` (the single build-truth surface), `.claude/`
+  scaffolding, and installs the graph-refresh hook.
+- Change how you work: edit `AGENTS.md` (or an overlay), then run `./sync.sh`.
+- Save context: `/save` writes a session log + decisions into the vault. The
+  SessionEnd hook also traces every session automatically (branch, changes, transcript
+  path, first prompt) so a forgotten `/save` still leaves a searchable record.
 - Resume context: `/recall` reads the recent vault notes for the current project.
+- Onboard an unfamiliar repo: the `repo-intake` skill maps it, builds the code graph,
+  writes its `AGENTS.md`, and wires the vault.
+- Before compacting a long session: the `memory-checkpoint` skill reconciles
+  `STATUS.md` + vault against git so nothing is lost.
 - Add a marketplace plugin: install via `/plugin`, then record it in `plugins.md`.
 
-## Vault
+## Uninstall
 
-Local Obsidian vault at `~/Vault` (override with `VAULT_DIR`). Layout:
-`inbox/  fleeting/  permanent/  decisions/  logs/  projects/<repo>/`. Back it up with a
-private repo + the Obsidian Git plugin if you want cross-machine sync.
+Restore the `.bak.<timestamp>` files `install.sh` created, and remove the
+`~/.claude/skills` symlink and the per-command symlinks in `~/.claude/commands`.
+Nothing else is touched.
 
 ## What is committed vs personal
 
 Per repo, these stay out of git (the template `.gitignore` handles it):
 `CLAUDE.local.md`, `AGENTS.override.md`, `.claude/settings.local.json`, `graphify-out/`.
 
-Never commit secrets (API keys in MCP configs, `~/.codex/config.toml`). A private repo is
-not the same as safe to leak.
+Never commit secrets (API keys in MCP configs, `~/.codex/config.toml`). A private repo
+is not the same as safe to leak — and this one is public.
 
 ## De-dup rules (why things live where they do)
 
-GUI installs (claude.ai web, Cowork desktop) and the Claude Code CLI use separate storage
-that does not sync. To avoid fragmentation:
+GUI installs (claude.ai web, Cowork desktop) and the Claude Code CLI use separate
+storage that does not sync. To avoid fragmentation:
 
-1. Skills you author live only in `skills/` here, symlinked to `~/.claude/skills`.
+1. Skills live only in `skills/` here, symlinked to `~/.claude/skills`.
 2. Marketplace plugins (e.g. superpowers) are installed via `/plugin` and listed in
    `plugins.md`. Do not copy them into `skills/`.
 3. Cowork and web are separate surfaces; install there via their GUIs if you want them.
+
+## Credits
+
+Vendored components, all MIT — full texts in
+[THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md):
+[vercel-labs/skills](https://github.com/vercel-labs/skills) (find-skills),
+[kepano/obsidian-skills](https://github.com/kepano/obsidian-skills) (defuddle,
+json-canvas, obsidian-*),
+[Graphify-Labs/graphify](https://github.com/Graphify-Labs/graphify) (graphify skill),
+[plasmicapp/plasmic](https://github.com/plasmicapp/plasmic) (plasmic-designer),
+[DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) (ponytail rules).
+
+## License
+
+MIT — see [LICENSE](LICENSE).
