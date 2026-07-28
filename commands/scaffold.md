@@ -1,6 +1,10 @@
 ---
 description: Lay the standard project layout into this repo (non-destructive)
 ---
+Scaffold is for repos I own. In a guest repo (someone else's — I branch and PR), do
+not run it: every file it lays down is a tracked-file change their owner has to
+review. `repo-intake`'s guest mode wires context vault-first instead.
+
 Run the scaffold script against the current project root:
 
     bash ~/.agents/scaffold.sh "$PWD"

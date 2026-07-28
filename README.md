@@ -60,6 +60,8 @@ Optional — each degrades gracefully if absent:
 - **`python3`** — enriches the session-end trace (transcript parsing). Breadcrumbs work without it.
 - **`jq`** — only used to merge the SessionEnd hook into an *existing*
   `~/.claude/settings.json`; without it you get the JSON to paste by hand.
+- **GitHub CLI (`gh`)** — powers the `standup` skill and the ownership check in
+  `repo-intake`'s guest-repo mode; without it those fall back to asking you.
 - **Node** — only for updating vendored skills via [`npx skills`](https://github.com/vercel-labs/skills).
 - **chrome-devtools-mcp** — only for the `plasmic-designer` skill. Register it at user
   scope so it follows the globally-symlinked skill:
@@ -130,7 +132,11 @@ the reliable relative `@AGENTS.md` import.
   path, first prompt) so a forgotten `/save` still leaves a searchable record.
 - Resume context: `/recall` reads the recent vault notes for the current project.
 - Onboard an unfamiliar repo: the `repo-intake` skill maps it, builds the code graph,
-  writes its `AGENTS.md`, and wires the vault.
+  writes its `AGENTS.md`, and wires the vault. On a repo you don't own it goes
+  vault-first: context lives in `~/Vault/projects/<repo>/repo-local/` and links into
+  the repo as gitignored files — nothing lands in the owner's tracked tree.
+- Start a session on a repo you share with others: the `standup` skill — is my memory
+  intact, what changed while I was gone, who is in which files, any migration drift.
 - Before compacting a long session: the `memory-checkpoint` skill reconciles
   `STATUS.md` + vault against git so nothing is lost.
 - Add a marketplace plugin: install via `/plugin`, then record it in `plugins.md`.
@@ -156,8 +162,12 @@ Reverse everything `install.sh` did:
 
 ## What is committed vs personal
 
-Per repo, these stay out of git (the template `.gitignore` handles it):
+Per repo, these stay out of git:
 `CLAUDE.local.md`, `AGENTS.override.md`, `.claude/settings.local.json`, `graphify-out/`.
+Two layers enforce it: the template `.gitignore` (repos you scaffold) and the
+machine-wide git ignore (`~/.config/git/ignore`, seeded by `install.sh`) — the latter
+covers repos you don't own, where the template never lands and editing the owner's
+`.gitignore` would cost them a review.
 
 Never commit secrets (API keys in MCP configs, `~/.codex/config.toml`). A private repo
 is not the same as safe to leak — and this one is public.

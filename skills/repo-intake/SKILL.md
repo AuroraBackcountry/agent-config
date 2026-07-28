@@ -11,7 +11,9 @@ description: >
   Use whenever you pick up a codebase and want it set up: "get me set up on this repo",
   "onboard me", "I cloned/forked this", "map this repo", "set up context here", "wire
   this into the vault", "create the AGENTS.md". Also trigger proactively when a repo
-  has no AGENTS.md/CLAUDE.md/.cursorrules and you start real work.
+  has no AGENTS.md/CLAUDE.md/.cursorrules and you start real work — but check ownership
+  first: on a repo the user doesn't own, intake is vault-first and writes nothing into
+  the repo's tracked files.
 
   NOT for refreshing already-current memory (that's memory-checkpoint) or greenfield
   scaffolding (that's /scaffold). If a repo is already documented AND wired, nothing to do.
@@ -54,7 +56,22 @@ detailed brief; work out the situation yourself.
 - **Empty folder, no URL:** ask for the repo URL or a local path -- one question, then continue.
 - **A local path was given:** treat that as the target and continue.
 
-With the code in place, pick the mode below.
+With the code in place, settle ownership, then pick the mode below.
+
+## Whose repo is this?
+
+The write target depends on ownership, so check before routing:
+
+```bash
+gh repo view --json viewerPermission --jq .viewerPermission   # run inside the repo
+```
+
+- **ADMIN or MAINTAIN** — or no remote at all (a local-only repo is the user's):
+  normal intake, writes go to the repo as described below.
+- **WRITE, TRIAGE, or READ** — a **guest repo**: the user ships branches and PRs but
+  doesn't own the tree. Run the same phases, but every write is vault-first — see
+  "Guest repo: vault-first writes" before Phase 5.
+- **No `gh`, or the command errors** — ask: "Your repo, or someone else's?" One question.
 
 ## Which mode: onboard, wire, or nothing
 
@@ -90,7 +107,10 @@ rest of the read:
 ```bash
 /graphify .
 ```
-That writes `graphify-out/` (gitignored): `graph.json`, `GRAPH_REPORT.md`, `graph.html`.
+That writes `graphify-out/` — kept out of `git status` everywhere by the machine-wide
+ignore (`~/.config/git/ignore`, seeded by `install.sh`), which matters because a repo
+with its own `.gitignore` never receives the template's ignore lines. Contents:
+`graph.json`, `GRAPH_REPORT.md`, `graph.html`.
 Read `graphify-out/GRAPH_REPORT.md` for the structural overview, and use
 `graphify query "..."` or `graphify explain "..."` to trace specific connections instead
 of opening every file. If Graphify isn't installed, skip this, map by reading, and note
@@ -154,7 +174,33 @@ Call out any real contradictions so they get resolved before they're written dow
 with: **"Is this accurate? Correct anything before I write it down."** Don't proceed until
 the user confirms or corrects.
 
+## Guest repo: vault-first writes
+
+Phases 1-4 are read-only -- run them unchanged. From Phase 5 on, the tracked files belong
+to the repo's owners, so your context lives in the vault and *links* into the repo:
+
+- Write the same canonical context file, but at
+  `~/Vault/projects/<repo>/repo-local/AGENTS.md`. Link it into the repo as
+  `CLAUDE.local.md` (auto-loaded by Claude Code, ignored machine-wide). If another
+  tool needs the tracked names (`AGENTS.md`/`CLAUDE.md` symlinks at the root), add
+  those names to the repo's `.git/info/exclude` -- local-only, invisible to the
+  owners. A re-clone or `git clean -fdx` kills the symlink but never the vault copy;
+  `standup` step 1 restores it.
+- Do NOT run `/scaffold`, write `STATUS.md`, or edit their `.gitignore` -- each is a
+  tracked-file change someone else has to review. Build truth lives in the team's own
+  surfaces (their docs, PRs, CI); your personal state goes in the vault MOC.
+- `repo-local/` is also the home for the repo's local `.env` files -- they survive
+  re-clones and branch switches, and the vault snapshot versions them. The vault
+  never leaves this machine; if it ever grows a remote, sweep for secrets first.
+- The code graph is fine: `graphify-out/` is ignored machine-wide, so it never shows
+  in their `git status`. The post-commit refresh hook is optional -- it's local-only
+  (`.git/hooks/`) either way.
+- Phase 6 (vault) and Phase 7 (first task) run unchanged.
+
 ## Phase 5: Write the canonical AGENTS.md
+
+**Guest repo: skip the repo root** -- write to the vault instead, per "Guest repo:
+vault-first writes" above. The structure below still applies; only the destination moves.
 
 Write `AGENTS.md` at the repo root -- the file every tool reads.
 - **Scaffolded repo** (stub `AGENTS.md` plus a `CLAUDE.md` that says `@AGENTS.md`): fill in
@@ -224,7 +270,7 @@ Decisions never live in the MOC itself; it's an index, not a copy.
 
 Write the vault markdown directly (`[[wikilinks]]` for note links) -- the vault is a
 folder of markdown, so writing files IS updating it. Keep the graph itself in the repo
-(`graphify-out/`, gitignored); the vault holds the human-readable memory.
+(`graphify-out/`, ignored machine-wide); the vault holds the human-readable memory.
 
 ## Phase 7: Propose the first task
 
@@ -245,7 +291,7 @@ The repo already explains itself (a real AGENTS.md, maybe a MASTER_PLAN/STATUS s
 touch that -- it's the source of truth and better than anything you'd write. Just connect it to
 the memory layer:
 
-1. **Build the code graph** if it's missing: `/graphify .` (writes `graphify-out/`, gitignored).
+1. **Build the code graph** if it's missing: `/graphify .` (writes `graphify-out/`, ignored machine-wide).
 2. **Create the vault project space** at `~/Vault/projects/<repo>/` with a MOC that *points at*
    the repo's own docs (AGENTS.md, MASTER_PLAN, STATUS, ARCHITECTURE) -- an index, not a
    re-summary. Never duplicate the north star. Link the key modules from the graph report, list

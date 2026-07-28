@@ -56,6 +56,14 @@ and the existing memory disagree, reality wins -- note the correction.
 
 ## Phase 2: Locate the memory surfaces
 
+**First, ownership.** In a guest repo (the user doesn't own it — `gh repo view --json
+viewerPermission` returns WRITE/TRIAGE/READ, or the user says so), the repo's tracked
+files are NOT your memory surfaces: no `STATUS.md` writes, no `AGENTS.md` "current
+focus", and the Phase 4 doctor pass is report-only (flag drift, never fix tracked
+files). Status and focus live in the vault MOC and
+`~/Vault/projects/<repo>/repo-local/` instead. Auto mode skips the confirmation
+step, never this boundary.
+
 Don't assume a layout. Find where THIS project keeps memory:
 - **Status doc** (`STATUS.md` or similar) -- the mutable build state. Primary target.
 - **Vault** (`~/Vault`; `VAULT_DIR` overrides): session logs live in
@@ -122,7 +130,9 @@ Close the loop:
 ## Notes and edge cases
 
 - **Modes are the contract.** Auto mode: do the whole pass without stopping to check. Plan
-  mode: report what you *would* write, don't apply. Default: show before writing.
+  mode: report what you *would* write, don't apply. Default: show before writing. No mode
+  overrides the guest-repo boundary in Phase 2 — auto mode still never edits tracked
+  files in a repo the user doesn't own.
 - **Accuracy beats completeness.** A flagged unknown is fine; a confident wrong claim is not.
 - **Not onboarding.** If the repo has no memory at all, point to `repo-intake` (first contact)
   or `/scaffold` (structure) instead.
