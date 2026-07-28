@@ -6,10 +6,13 @@ machine reinstalls them fresh and updatable.
 
 ## Claude Code (CLI)
 
-    /plugin marketplace add obra/superpowers-marketplace
-    /plugin install superpowers@superpowers-marketplace
+    /plugin install superpowers@claude-plugins-official
+
+(The official marketplace is built in; no `marketplace add` step needed.)
 
 ## Notes
+- This lists user-scope plugins only. Project-scoped plugins (installed for a single
+  repo) live in that repo's own `.claude` config and are not tracked here.
 - Skills you author yourself go in `skills/` (this repo), not here.
 - Cowork (desktop app) and claude.ai (web) manage their own plugins separately;
   they do not read this repo. Reinstall there via their GUIs if you want them on those surfaces.

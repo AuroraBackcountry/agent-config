@@ -2,3 +2,6 @@
 .DS_Store
 graphify-out/
 generated/
+CLAUDE.local.md
+AGENTS.override.md
+.claude/settings.local.json
