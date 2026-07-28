@@ -102,8 +102,11 @@ Silently do the following. Don't ask permission or narrate each step -- do the w
 report findings.
 
 ### 2.1 Build the code graph
-If Graphify is available, build it first. It gives you structure cheaply and steers the
-rest of the read:
+First check: if this repo *tracks* its own `graphify-out/` (`git ls-files graphify-out/`
+returns anything), the graph is the team's committed artifact — read theirs, don't
+rebuild; a rebuild would modify their tracked files. Otherwise, if Graphify is
+available, build it first. It gives you structure cheaply and steers the rest of the
+read:
 ```bash
 /graphify .
 ```
@@ -299,7 +302,8 @@ the memory layer:
 3. **Quick drift check** (the same doctor pass as memory-checkpoint): if `CLAUDE.md` and
    `AGENTS.md` are duplicate copies, collapse `CLAUDE.md` to `@AGENTS.md`; fix any find-replace
    corruption (verify suspect tokens against the code); flag stale sections -- but never edit an
-   immutable master plan or locked spec.
+   immutable master plan or locked spec. **In a guest repo this check is report-only**: their
+   tracked memory files are their system -- flag duplication or drift for the owners, fix nothing.
 4. Report what you wired (graph built, vault MOC created, anything reconciled). The repo is now in
    the memory layer without a re-onboarding.
 
