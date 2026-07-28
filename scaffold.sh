@@ -33,17 +33,24 @@ fi
 
 # Install the graphify post-commit hook. The hook line calls the central
 # script so future improvements propagate without re-running scaffold.
-if [ -d "$TARGET/.git" ]; then
-  hook="$TARGET/.git/hooks/post-commit"
-  line='bash "$HOME"/.agents/hooks/graphify-post-commit.sh'
+# rev-parse --git-path resolves worktrees (shared hooks dir) and core.hooksPath
+# (husky-style repos) — a hardcoded .git/hooks path silently misses both.
+if hooksdir="$(git -C "$TARGET" rev-parse --path-format=absolute --git-path hooks 2>/dev/null)"; then
+  mkdir -p "$hooksdir"
+  hook="$hooksdir/post-commit"
+  line="bash \"$AGENTS_HOME\"/hooks/graphify-post-commit.sh"
   if [ -f "$hook" ]; then
     if ! grep -q graphify-post-commit.sh "$hook"; then
+      # ensure the existing hook ends with a newline or the line glues onto it
+      [ -n "$(tail -c1 "$hook")" ] && echo >> "$hook"
       printf '%s\n' "$line" >> "$hook"
-      echo "added  graphify line to existing post-commit hook"
+      echo "added  graphify line to existing post-commit hook ($hook)"
     fi
   else
     printf '#!/usr/bin/env bash\n%s\n' "$line" > "$hook"
-    echo "added  .git/hooks/post-commit (graphify)"
+    echo "added  post-commit hook (graphify) at $hook"
   fi
   chmod +x "$hook"
+else
+  echo "note: graphify post-commit hook not installed ($TARGET is not a git repo, or git <2.31)"
 fi
