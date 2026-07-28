@@ -61,6 +61,28 @@ for cmd in "$AGENTS_HOME"/commands/*.md; do
 done
 echo
 
+# Machine-wide git ignore: personal agent files must stay invisible in EVERY repo,
+# including ones you don't own — the template .gitignore only lands in repos you
+# scaffold, and editing someone else's .gitignore costs them a review.
+gitignore_global="$(git config --get core.excludesfile 2>/dev/null || true)"
+gitignore_global="${gitignore_global:-${XDG_CONFIG_HOME:-$HOME/.config}/git/ignore}"
+gitignore_global="${gitignore_global/#\~/$HOME}"
+mkdir -p "$(dirname "$gitignore_global")"
+touch "$gitignore_global"
+[ -s "$gitignore_global" ] && [ -n "$(tail -c1 "$gitignore_global")" ] && echo >> "$gitignore_global"
+while IFS= read -r pat; do
+  if ! grep -qxF "$pat" "$gitignore_global"; then
+    printf '%s\n' "$pat" >> "$gitignore_global"
+    echo "global git ignore += $pat ($gitignore_global)"
+  fi
+done <<'EOF'
+**/.claude/settings.local.json
+CLAUDE.local.md
+AGENTS.override.md
+graphify-out/
+EOF
+echo
+
 # SessionEnd hook: append breadcrumbs to the vault. Wired with the args form so a
 # space in the path is safe.
 settings="$HOME/.claude/settings.json"
