@@ -34,8 +34,9 @@ prevents premature, wrong-headed advice on code you don't yet understand.
   THIS codebase and never restates the global rules.
 - Durable project memory lives in the Obsidian vault at `~/Vault/projects/<repo>/`
   (`VAULT_DIR` overrides `~/Vault`).
-- Tools to lean on: the Graphify code graph (`/graphify`) and the obsidian skills for
-  vault notes. If either isn't installed, degrade gracefully -- say so and continue.
+- Tools to lean on: the Graphify code graph (`/graphify`). Vault notes are plain
+  markdown -- write them directly (`[[wikilinks]]` for note links). If Graphify isn't
+  installed, degrade gracefully -- say so and continue.
 
 ## Phase 0: Locate the code
 
@@ -269,5 +270,5 @@ the memory layer:
   (just template placeholders) doesn't count as filled in -- do a full onboard to fill it. Only
   redo a full onboard over a real file if the user explicitly asks, renaming the old to
   `AGENTS.md.bak` first.
-- **Tools missing:** if Graphify or the obsidian skills aren't installed, say so, skip that
-  step, and continue -- the intake still works, just with less automation.
+- **Tools missing:** if Graphify isn't installed, say so, skip that step, and continue --
+  the intake still works, just with less automation.

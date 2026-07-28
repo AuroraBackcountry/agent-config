@@ -159,8 +159,7 @@ storage that does not sync. To avoid fragmentation:
 
 Vendored components, all MIT — full texts in
 [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md):
-[kepano/obsidian-skills](https://github.com/kepano/obsidian-skills) (defuddle,
-obsidian-cli, obsidian-markdown),
+[kepano/obsidian-skills](https://github.com/kepano/obsidian-skills) (defuddle),
 [Graphify-Labs/graphify](https://github.com/Graphify-Labs/graphify) (graphify skill),
 [plasmicapp/plasmic](https://github.com/plasmicapp/plasmic) (plasmic-designer),
 [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) (ponytail rules).

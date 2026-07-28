@@ -5,7 +5,7 @@ Sources are tracked in `.skill-lock.json` where installed via `npx skills`.
 
 | Component | Path | Upstream |
 |---|---|---|
-| defuddle, obsidian-cli, obsidian-markdown | `skills/{defuddle,obsidian-cli,obsidian-markdown}/` | [kepano/obsidian-skills](https://github.com/kepano/obsidian-skills) |
+| defuddle | `skills/defuddle/` | [kepano/obsidian-skills](https://github.com/kepano/obsidian-skills) |
 | graphify (skill docs, from graphifyy 0.9.23) | `skills/graphify/` | [Graphify-Labs/graphify](https://github.com/Graphify-Labs/graphify) |
 | plasmic-designer | `skills/plasmic-designer/` | [plasmicapp/plasmic](https://github.com/plasmicapp/plasmic) |
 | ponytail | `rules/ponytail.md` | [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) |
