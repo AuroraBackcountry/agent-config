@@ -85,8 +85,9 @@ cd ~/.agents
 ./install.sh
 ```
 
-Manual step for Cursor: paste `AGENTS.md` + `rules/ponytail.md` + `overlays/cursor.md`
+Manual step for Cursor: paste `generated/cursor-user-rules.md` (built by `sync.sh`)
 into Cursor Settings > Rules > User Rules (Cursor has no on-disk global file).
+`./sync.sh --check` reports when any baked output is stale.
 
 ## Make it yours
 

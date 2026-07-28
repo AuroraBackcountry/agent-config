@@ -79,24 +79,48 @@ if [ ! -f "$settings" ]; then
 EOF
   echo "wrote $settings (wired SessionEnd hook)"
 elif command -v jq >/dev/null 2>&1; then
-  cp "$settings" "$settings.bak.$STAMP"
-  tmp="$(mktemp)"
-  if jq --arg p "$hook_path" '
-      .hooks = (.hooks // {})
-      | .hooks.SessionEnd = (.hooks.SessionEnd // [])
-      | if any(.hooks.SessionEnd[]?; (.hooks[]?.args[]?) == $p) then .
-        else .hooks.SessionEnd += [ { "hooks": [ { "type": "command", "command": "bash", "args": [ $p ] } ] } ] end
-    ' "$settings" > "$tmp" 2>/dev/null; then
-    mv "$tmp" "$settings"
-    echo "merged SessionEnd hook into $settings (backup: $settings.bak.$STAMP)"
+  if jq -e --arg p "$hook_path" 'any(.hooks.SessionEnd[]?; (.hooks[]?.args[]?) == $p)' \
+      "$settings" >/dev/null 2>&1; then
+    echo "SessionEnd hook already wired in $settings"
   else
-    rm -f "$tmp" "$settings.bak.$STAMP"
-    echo "could not parse $settings; left it untouched. Add this under \"hooks\":"
-    echo "  \"SessionEnd\": [ { \"hooks\": [ { \"type\": \"command\", \"command\": \"bash\", \"args\": [\"$hook_path\"] } ] } ]"
+    cp "$settings" "$settings.bak.$STAMP"
+    tmp="$(mktemp)"
+    if jq --arg p "$hook_path" '
+        .hooks = (.hooks // {})
+        | .hooks.SessionEnd = (.hooks.SessionEnd // [])
+        | .hooks.SessionEnd += [ { "hooks": [ { "type": "command", "command": "bash", "args": [ $p ] } ] } ]
+      ' "$settings" > "$tmp" 2>/dev/null; then
+      mv "$tmp" "$settings"
+      echo "merged SessionEnd hook into $settings (backup: $settings.bak.$STAMP)"
+    else
+      rm -f "$tmp" "$settings.bak.$STAMP"
+      echo "could not parse $settings; left it untouched. Add this under \"hooks\":"
+      echo "  \"SessionEnd\": [ { \"hooks\": [ { \"type\": \"command\", \"command\": \"bash\", \"args\": [\"$hook_path\"] } ] } ]"
+    fi
   fi
 else
   echo "note: $settings exists and jq is not installed; not modifying it. Add under \"hooks\":"
   echo "  \"SessionEnd\": [ { \"hooks\": [ { \"type\": \"command\", \"command\": \"bash\", \"args\": [\"$hook_path\"] } ] } ]"
+fi
+echo
+
+# Keep the baked globals fresh: a post-commit hook in this repo re-runs sync.sh
+# (idempotent and instant), so a committed rules edit can't silently go stale.
+if hooksdir="$(git -C "$AGENTS_HOME" rev-parse --path-format=absolute --git-path hooks 2>/dev/null)"; then
+  mkdir -p "$hooksdir"
+  agents_hook="$hooksdir/post-commit"
+  sync_line="bash \"$AGENTS_HOME\"/sync.sh >/dev/null && echo 'sync.sh: regenerated baked globals'"
+  if [ -f "$agents_hook" ]; then
+    if ! grep -q "sync.sh" "$agents_hook"; then
+      [ -n "$(tail -c1 "$agents_hook")" ] && echo >> "$agents_hook"
+      printf '%s\n' "$sync_line" >> "$agents_hook"
+      echo "added sync line to existing $agents_hook"
+    fi
+  else
+    printf '#!/usr/bin/env bash\n%s\n' "$sync_line" > "$agents_hook"
+    echo "wrote $agents_hook (re-bakes globals on commit)"
+  fi
+  chmod +x "$agents_hook"
 fi
 echo
 
@@ -105,7 +129,7 @@ bash "$AGENTS_HOME/sync.sh"
 
 echo
 echo "Done."
-echo "Manual step for Cursor: paste AGENTS.md + rules/ponytail.md + overlays/cursor.md into"
+echo "Manual step for Cursor: paste generated/cursor-user-rules.md into"
 echo "  Cursor Settings > Rules > User Rules."
 echo
 echo "Any backups use the suffix .bak.$STAMP and were left in place."
