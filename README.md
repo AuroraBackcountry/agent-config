@@ -106,6 +106,11 @@ into Cursor Settings > Rules > User Rules (Cursor has no on-disk global file).
 - **`skills/`** — prune what you won't use (`graphify` needs the CLI installed).
   `.skill-lock.json` tracks the npx-skills-vendored ones; `THIRD_PARTY_LICENSES.md`
   attributes everything vendored.
+- **Personal skills you don't want published:** keep the real folder outside the repo
+  (the vault works — it's local and versioned), symlink it into `skills/`, and add the
+  symlink's name to `.gitignore`. The global `~/.claude/skills` link follows it, so the
+  skill stays live while the repo stays clean. Re-clone the repo and it's one `ln -s`
+  to restore.
 
 Then run `./sync.sh` to regenerate the globals whenever you change rules or overlays.
 
