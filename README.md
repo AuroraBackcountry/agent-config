@@ -63,9 +63,6 @@ Optional — each degrades gracefully if absent:
 - **GitHub CLI (`gh`)** — powers the `standup` skill and the ownership check in
   `repo-intake`'s guest-repo mode; without it those fall back to asking you.
 - **Node** — only for updating vendored skills via [`npx skills`](https://github.com/vercel-labs/skills).
-- **chrome-devtools-mcp** — only for the `plasmic-designer` skill. Register it at user
-  scope so it follows the globally-symlinked skill:
-  `claude mcp add --scope user chrome-devtools -- npx chrome-devtools-mcp@latest --no-usage-statistics`
 - **Obsidian** — optional viewer for the vault. The vault is just markdown folders.
 
 Platform: macOS and Linux. The graph-refresh hook's CPU guard is macOS-only (it
@@ -106,9 +103,9 @@ into Cursor Settings > Rules > User Rules (Cursor has no on-disk global file).
   session. Delete it if it's not your style (`sync.sh` handles its absence).
 - **Vault location** — defaults to `~/Vault`; override with `VAULT_DIR`.
 - **`plugins.md`** — my marketplace shopping list; replace with yours.
-- **`skills/`** — prune what you won't use (`plasmic-designer` only matters if you use
-  Plasmic; `graphify` needs the CLI installed). `.skill-lock.json` tracks the
-  npx-skills-vendored ones; `THIRD_PARTY_LICENSES.md` attributes everything vendored.
+- **`skills/`** — prune what you won't use (`graphify` needs the CLI installed).
+  `.skill-lock.json` tracks the npx-skills-vendored ones; `THIRD_PARTY_LICENSES.md`
+  attributes everything vendored.
 
 Then run `./sync.sh` to regenerate the globals whenever you change rules or overlays.
 
@@ -188,7 +185,6 @@ Vendored components, all MIT — full texts in
 [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md):
 [kepano/obsidian-skills](https://github.com/kepano/obsidian-skills) (defuddle),
 [Graphify-Labs/graphify](https://github.com/Graphify-Labs/graphify) (graphify skill),
-[plasmicapp/plasmic](https://github.com/plasmicapp/plasmic) (plasmic-designer),
 [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) (ponytail rules).
 
 ## License
