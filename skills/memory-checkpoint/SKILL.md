@@ -15,7 +15,7 @@ description: >
   stale, duplicated, or corrupted and need reconciling.
 
   NOT first-contact onboarding (that's repo-intake) and NOT personal task tracking
-  (that's productivity:update). This keeps a codebase's build-state memory accurate.
+  (out of scope). This keeps a codebase's build-state memory accurate.
 ---
 
 # Memory Checkpoint
@@ -58,8 +58,10 @@ and the existing memory disagree, reality wins -- note the correction.
 
 Don't assume a layout. Find where THIS project keeps memory:
 - **Status doc** (`STATUS.md` or similar) -- the mutable build state. Primary target.
-- **Vault project space** (`~/Vault/projects/<repo>/`; `VAULT_DIR` overrides `~/Vault`):
-  session logs, a `decisions` note, the MOC's "Next" section. Update these.
+- **Vault** (`~/Vault`; `VAULT_DIR` overrides): session logs live in
+  `~/Vault/logs/<YYYY-MM-DD>-<project>.md`, decisions in `~/Vault/decisions/<project>.md`,
+  and the project MOC (`~/Vault/projects/<repo>/README.md`) holds only pointers and a
+  "Next" line. Update these.
 - **`AGENTS.md` "Current focus"** -- only if the project uses AGENTS.md as its status surface
   (small projects with no STATUS.md).
 - **Locked / immutable** -- `MASTER_PLAN`, locked design specs, `GENERATED` files. Read for
@@ -81,8 +83,9 @@ Update each mutable surface with the verified state:
   current-state block is the ONLY thing a reader should trust. Reconcile stale text in place;
   don't prepend a newer banner that silently supersedes an old one.
 - **Vault:** refresh the MOC's "Next" pointer only. Session logs and decisions belong to
-  `/save` -- append a dated log entry here ONLY if no `/save` ran this session and
-  something durable would otherwise be lost. Checkpoint owns state; `/save` owns history.
+  `/save` -- append a dated log entry to `~/Vault/logs/<YYYY-MM-DD>-<project>.md` (the
+  file `/recall` reads) ONLY if no `/save` ran this session and something durable would
+  otherwise be lost. Checkpoint owns state; `/save` owns history.
 - Keep it tight and factual. State current truth -- no "previously X, now Y" narration, no
   filler. The file earns its keep by being scannable next session.
 
@@ -124,6 +127,6 @@ Close the loop:
 - **Not onboarding.** If the repo has no memory at all, point to `repo-intake` (first contact)
   or `/scaffold` (structure) instead.
 - **Not task tracking.** Personal tasks, people, and acronyms across your work life are
-  `productivity:update`'s job, not this.
+  out of scope here -- this skill only keeps a codebase's build-state memory accurate.
 - **Tools missing.** No vault or no git? Degrade gracefully -- do what you can and say what
   you skipped.

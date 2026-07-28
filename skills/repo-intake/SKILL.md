@@ -214,11 +214,14 @@ write a project MOC (map of content) at `README.md` with:
 - A pointer to the repo's `AGENTS.md` (the canonical context) and, if built, the key
   modules from `graphify-out/GRAPH_REPORT.md`.
 - An **Open questions** section (anything unresolved from Phase 3).
-- A **Decisions** section, seeded with any architectural decisions surfaced during intake.
 - A **Next** section (filled in Phase 7).
 
-Use the obsidian skills (obsidian-cli / obsidian-markdown) for wikilinks and search if
-they're installed; otherwise just write the markdown files directly -- the vault is a
+Seed any architectural decisions surfaced during intake into
+`~/Vault/decisions/<repo>.md` (date, decision, rationale) -- the one surface `/save`
+appends to and `/recall` reads -- and keep only a wikilink pointer to it in the MOC.
+Decisions never live in the MOC itself; it's an index, not a copy.
+
+Write the vault markdown directly (`[[wikilinks]]` for note links) -- the vault is a
 folder of markdown, so writing files IS updating it. Keep the graph itself in the repo
 (`graphify-out/`, gitignored); the vault holds the human-readable memory.
 

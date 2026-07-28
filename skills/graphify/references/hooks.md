@@ -1,5 +1,10 @@
 # graphify reference: commit hook and native CLAUDE.md integration
 
+> **Local deviation:** this setup installs the central `~/.agents/hooks/graphify-post-commit.sh`
+> via `scaffold.sh` (with dedup, CPU-load, and mid-rebase guards). Do NOT also run
+> `graphify hook install` — a scaffolded repo would end up with both hook lines and
+> double rebuilds per commit. The upstream instructions below are kept for reference.
+
 Load this when the user asked to install the post-commit hook or wire graphify into a project's CLAUDE.md.
 
 ## For git commit hook

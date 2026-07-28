@@ -1,6 +1,6 @@
 ---
 name: plasmic-designer
-description: Build and modify Plasmic Studio designs using copilot tools via Chrome DevTools MCP. First argument should be a project ID, followed by the design request. Use this skill whenever the user mentions Plasmic, Plasmic Studio, visual web builder, or asks to design, build, edit, or modify UI components, pages, sections, or layouts inside a Plasmic project. Also trigger when the user references a Plasmic project ID, wants to add/remove/restyle elements in a visual editor, or asks about Plasmic component props, variants, slots, or tokens — even if they don't say "Plasmic" explicitly but describe visual design work that implies it.
+description: Build and modify Plasmic Studio designs using copilot tools via Chrome DevTools MCP. First argument should be a project ID, followed by the design request. Use this skill when there is a concrete Plasmic signal — the user mentions Plasmic or Plasmic Studio, references a Plasmic project ID or URL, asks about Plasmic component props, variants, slots, or tokens, or the conversation has an established Plasmic context. NOT for React/Next.js component work in a code repo; "add a section to the homepage" without a Plasmic signal is a code change, not a Studio edit.
 allowed-tools: mcp__chrome-devtools__evaluate_script mcp__chrome-devtools__navigate_page mcp__chrome-devtools__take_screenshot mcp__chrome-devtools__list_pages
 metadata:
   version: "1.1.0"

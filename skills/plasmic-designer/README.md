@@ -48,8 +48,12 @@ If you're already comfortable with MCP configuration, this is a one-liner.
 **Claude Code**:
 
 ```sh
-claude mcp add chrome-devtools -- npx chrome-devtools-mcp@latest --no-usage-statistics
+claude mcp add --scope user chrome-devtools -- npx chrome-devtools-mcp@latest --no-usage-statistics
 ```
+
+(`--scope user` matters: the default local scope registers the server only for the
+directory you run the command in, while this skill triggers globally — a project-scoped
+registration leaves the skill broken everywhere else.)
 
 Alternatively, add the following to your project's `.claude/.mcp.json` or your user-global `~/.claude/.mcp.json`:
 
