@@ -36,6 +36,19 @@ fi
 # rev-parse --git-path resolves worktrees (shared hooks dir) and core.hooksPath
 # (husky-style repos) — a hardcoded .git/hooks path silently misses both.
 if hooksdir="$(git -C "$TARGET" rev-parse --path-format=absolute --git-path hooks 2>/dev/null)"; then
+  # A hooks dir inside the worktree (husky-style core.hooksPath) is tracked
+  # content — writing there would put our line in someone's git status / PR.
+  gitcommon="$(git -C "$TARGET" rev-parse --path-format=absolute --git-common-dir 2>/dev/null)"
+  worktop="$(git -C "$TARGET" rev-parse --show-toplevel 2>/dev/null)"
+  case "$hooksdir" in
+    "$gitcommon"/*) ;; # normal .git hooks dir — invisible to git, safe
+    "$worktop"/*)
+      echo "note: hooks dir is inside the worktree ($hooksdir — husky-style, likely tracked)."
+      echo "      Not writing there. To opt in, add this line to the post-commit hook yourself:"
+      echo "      bash \"$AGENTS_HOME\"/hooks/graphify-post-commit.sh"
+      exit 0
+      ;;
+  esac
   mkdir -p "$hooksdir"
   hook="$hooksdir/post-commit"
   line="bash \"$AGENTS_HOME\"/hooks/graphify-post-commit.sh"

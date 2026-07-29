@@ -50,6 +50,13 @@ Drop any folder of code, docs, papers, images, or video into graphify and get a 
 
 If the user invoked `/graphify --help` or `/graphify -h` (with no other arguments), print the contents of the `## Usage` section above verbatim and stop. Do not run any commands, do not detect files, do not default the path to `.`. Just print the Usage block and return.
 
+> **Local deviation — tracked-graph check before any write:** if `git ls-files
+> graphify-out/ | head -1` returns anything, this repo *commits* its graph — it is the
+> team's artifact, not a local derived file. Querying it is fine (the fast path below
+> works as normal), but do NOT rebuild, `--update`, or write anything into
+> `graphify-out/`: a rebuild would modify their tracked files. Say so and stop instead,
+> unless the user owns the repo and explicitly asks to regenerate the tracked graph.
+
 **Fast path — existing graph:** Before doing anything else, check whether `graphify-out/graph.json` exists. The expected location is `graphify-out/graph.json` relative to the **current working directory** (i.e. the project root where you are running commands). If it exists AND the user's request is a natural-language question about the codebase (e.g. "How does X work?", "What calls Y?", "Trace the data flow through Z") and NOT an explicit rebuild command (`--update`, `--cluster-only`, or a bare path/URL that implies fresh extraction): **skip Steps 1–5 entirely and jump straight to `## For /graphify query`.** Run `graphify query "<question>"` immediately. Do not run detect. Do not check corpus size. Do not ask the user to narrow. The graph is already built — use it.
 
 If no path was given, use `.` (current directory). Do not ask the user for a path.

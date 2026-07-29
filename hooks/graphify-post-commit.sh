@@ -8,6 +8,9 @@
 top="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
 [ -f "$top/graphify-out/graph.json" ] || exit 0
 
+# A tracked graph is the team's committed artifact — never rebuild over it.
+git -C "$top" ls-files --error-unmatch graphify-out/graph.json >/dev/null 2>&1 && exit 0
+
 # graphify must be on PATH.
 command -v graphify >/dev/null 2>&1 || exit 0
 
