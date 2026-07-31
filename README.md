@@ -17,7 +17,7 @@ layers, each answering a different question:
 |---|---|---|
 | **Rules** | How should the agent behave? | `AGENTS.md` + per-tool overlays, baked into each tool's global config by `sync.sh` |
 | **Knowledge** | What was decided, and why? | A local vault (`~/Vault`) — plain markdown folders under git (the SessionEnd hook snapshots it each session); Obsidian is a nice viewer, not a requirement |
-| **Structure** | How does the code connect? | A derived code graph per repo (`graphify-out/`, gitignored), kept fresh by a post-commit hook |
+| **Structure** | How does the code connect? | The current source, read live. For large or unfamiliar repos, an optional derived code graph (`graphify-out/`, gitignored), built on demand and kept fresh by a post-commit hook once built |
 | **History** | What actually happened? | git — the immutable record |
 
 Skills like `repo-intake` (onboard a repo) and `memory-checkpoint` (reconcile state
@@ -42,6 +42,8 @@ phrasing that a merge silently invalidates.
     scaffold.sh          Lay the standard layout into a project (non-destructive).
     sync.sh              Regenerate the global Claude + Codex files from canonical.
     install.sh           Wire everything into this machine (backs up first).
+    cloud-setup.sh       Headless subset of install.sh for ephemeral cloud VMs
+                         (run by the SessionStart hooks; never syncs the vault).
 
 **Tool support is not symmetrical.** The shared rules reach all three tools. Skills,
 slash commands, hooks, and the vault workflow (`/save`, `/recall`) are Claude
@@ -55,8 +57,9 @@ consumer — without it the install still succeeds but nothing reads the files).
 Optional — each degrades gracefully if absent:
 
 - **`graphify` CLI** (`pip install graphifyy` or `uv tool install graphifyy`) — powers
-  the code-graph layer and the post-commit refresh hook. Without it the hook silently
-  no-ops and you simply have no Structure layer.
+  the optional on-demand code graph and its post-commit refresh hook. Without it the
+  hook silently no-ops and `/graphify` is unavailable; the Structure layer is simply
+  reading the code, which is the default anyway.
 - **`python3`** — enriches the session-end trace (transcript parsing). Breadcrumbs work without it.
 - **`jq`** — only used to merge the SessionEnd hook into an *existing*
   `~/.claude/settings.json`; without it you get the JSON to paste by hand.
@@ -133,8 +136,9 @@ the reliable relative `@AGENTS.md` import.
   SessionEnd hook also traces every session automatically (branch, changes, transcript
   path, first prompt) so a forgotten `/save` still leaves a searchable record.
 - Resume context: `/recall` reads the recent vault notes for the current project.
-- Onboard an unfamiliar repo: the `repo-intake` skill maps it, builds the code graph,
-  writes its `AGENTS.md`, and wires the vault. On a repo you don't own it goes
+- Onboard an unfamiliar repo: the `repo-intake` skill maps it, writes its
+  `AGENTS.md`, and wires the vault (building a Graphify graph only when the repo
+  is too large to map by reading). On a repo you don't own it goes
   vault-first: context lives in `~/Vault/projects/<repo>/repo-local/` and links into
   the repo as gitignored files — nothing lands in the owner's tracked tree.
 - Start a session on a repo you share with others: the `standup` skill — is my memory
@@ -142,6 +146,30 @@ the reliable relative `@AGENTS.md` import.
 - Before compacting a long session: the `memory-checkpoint` skill reconciles
   `STATUS.md` + vault against git so nothing is lost.
 - Add a marketplace plugin: install via `/plugin`, then record it in `plugins.md`.
+
+## Cloud sessions
+
+Claude Code on the web runs in an ephemeral VM — nothing `install.sh` wired into
+your laptop exists there. Two `SessionStart` hooks close the gap, both no-ops on
+a local machine (they check `CLAUDE_CODE_REMOTE`):
+
+- **This repo:** `.claude/hooks/session-start.sh` runs `cloud-setup.sh` when a
+  cloud session boots on agent-config itself — bakes the rules into the VM's
+  global `CLAUDE.md`, links skills and slash commands, seeds the machine-wide
+  git ignore.
+- **Scaffolded repos:** the project template ships the same hook. It clones your
+  agent-config fork and runs `cloud-setup.sh`. Set `AGENTS_REPO` to your fork's
+  clone URL in the cloud environment's settings, and make sure the environment
+  can reach it (public fork, or added to the environment's repositories).
+  Without `AGENTS_REPO` the hook is a silent no-op and the session simply runs
+  without the personal layer.
+
+**The vault stays home, on purpose.** It holds secrets (`repo-local/` carries
+`.env` files) and never leaves your own machine, so cloud sessions run without
+the Knowledge layer: `/save` and `/recall` hit an empty `~/Vault` that dies with
+the VM, and the SessionEnd breadcrumb hook is not wired. Anything worth keeping
+from a cloud session should be committed to the repo, or added to the vault by
+hand later.
 
 ## Uninstall
 

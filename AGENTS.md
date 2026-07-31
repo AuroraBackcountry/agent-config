@@ -39,8 +39,8 @@ Use judgment, and any project can override a point with an explicit note.
 - Decisions go to `~/Vault/decisions`, session notes to `~/Vault/logs`.
 
 ## Memory and source of truth
-- Four layers, each a different question. Rules: AGENTS.md + overlays (how I behave). Knowledge: the Obsidian vault (intent, decisions, status). Structure: Graphify (`graphify-out/`), a derived code map. History: git (the immutable record).
+- Four layers, each a different question. Rules: AGENTS.md + overlays (how I behave). Knowledge: the Obsidian vault (intent, decisions, status). Structure: the current source, read live; Graphify (`graphify-out/`) is an on-demand map for large or unfamiliar repos — nothing builds it by default. History: git (the immutable record).
 - `repo-intake` and `memory-checkpoint` orchestrate these layers; they are not sources of truth.
 - On conflict: for how code behaves, current source and passing tests win; for intent, current decision notes and locked specs win. Graphify is derived and lags uncommitted changes, so treat it as a map, not ground truth. `MASTER_PLAN` and locked specs stay immutable during routine work.
 - STATUS records **state, not lifecycle**: present-tense facts true right now. Branch/PR/merge-pending phrasing (`draft PR`, `on branch X`, `redeploy on merge`) never goes in a current-state surface; a merge makes it false and nothing re-edits it. Keep build state in ONE surface (STATUS); the vault MOC and auto-memory hold pointers to it, never copies. A dated changelog is frozen history: past tense, never future.
-- Orienting: small or familiar repo, read source first; large or unfamiliar, query Graphify for structure, then confirm behavior in source before changing anything. Pull the relevant vault note when intent or history matters.
+- Orienting: read the source first — that is the default for every repo. On a large or unfamiliar repo where reading alone won't cover it, build a Graphify graph on demand (`/graphify .`) and query it for structure, then confirm behavior in source before changing anything. Pull the relevant vault note when intent or history matters.

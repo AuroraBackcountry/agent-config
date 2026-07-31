@@ -2,11 +2,12 @@
 name: repo-intake
 description: >
   Get a repo ready to work in, doing the right thing based on what's already there.
-  For an unfamiliar repo: asks what you're here to do, maps the code (building a
-  Graphify graph), writes the canonical AGENTS.md, records it in your Obsidian vault,
-  and proposes a first task. For a repo that's already documented but not yet wired
-  into your memory layer (a real AGENTS.md/MASTER_PLAN but no vault space or code
-  graph): it just wires those in and leaves the existing docs alone.
+  For an unfamiliar repo: asks what you're here to do, maps the code (reading it;
+  a Graphify graph only when it's too large to map by reading), writes the canonical
+  AGENTS.md, records it in your Obsidian vault, and proposes a first task. For a repo
+  that's already documented but not yet wired into your memory layer (a real
+  AGENTS.md/MASTER_PLAN but no vault space): it just wires that in and leaves the
+  existing docs alone.
 
   Use whenever you pick up a codebase and want it set up: "get me set up on this repo",
   "onboard me", "I cloned/forked this", "map this repo", "set up context here", "wire
@@ -36,9 +37,10 @@ prevents premature, wrong-headed advice on code you don't yet understand.
   THIS codebase and never restates the global rules.
 - Durable project memory lives in the Obsidian vault at `~/Vault/projects/<repo>/`
   (`VAULT_DIR` overrides `~/Vault`).
-- Tools to lean on: the Graphify code graph (`/graphify`). Vault notes are plain
-  markdown -- write them directly (`[[wikilinks]]` for note links). If Graphify isn't
-  installed, degrade gracefully -- say so and continue.
+- Tools to lean on: reading the source is the default map. The Graphify code graph
+  (`/graphify`) is an on-demand tool for repos too large or tangled to map by
+  reading -- not a default step. Vault notes are plain markdown -- write them
+  directly (`[[wikilinks]]` for note links).
 
 ## Phase 0: Locate the code
 
@@ -79,11 +81,11 @@ Check what memory already exists, then route:
 - **No real context file** (no AGENTS.md/CLAUDE.md/.cursorrules, or only a `/scaffold` stub) ->
   **full onboard**: do Phases 1-7 below.
 - **A real, filled-in context file already** (AGENTS.md, CLAUDE.md, a MASTER_PLAN/STATUS system)
-  but **not wired into the memory layer** (no `~/Vault/projects/<repo>/`, or no `graphify-out/`) ->
+  but **not wired into the memory layer** (no `~/Vault/projects/<repo>/`) ->
   **wire-only**: skip the onboarding phases and jump to "Wire an already-documented repo" near the
   end. Do NOT re-onboard or rewrite the existing docs; they're the source of truth and probably
   better than anything you'd write.
-- **Already documented AND wired** (context file + vault space + graph): nothing to onboard. If the
+- **Already documented AND wired** (context file + vault space): nothing to onboard. If the
   memory looks stale, hand off to `memory-checkpoint`; otherwise just say it's set.
 
 ## Phase 1: Capture intent (ask first)
@@ -96,28 +98,36 @@ This frames the whole intake: an "add a feature" intent reads a repo differently
 "review it for security" intent. Keep it to a couple of questions, don't interrogate. If
 the user already stated their goal, reflect it back in one line and go straight to Phase 2.
 
-## Phase 2: Map the territory and build the code graph
+## Phase 2: Map the territory
 
 Silently do the following. Don't ask permission or narrate each step -- do the work and
 report findings.
 
-### 2.1 Build the code graph
-First check: if this repo *tracks* its own `graphify-out/` (`git ls-files graphify-out/`
-returns anything), the graph is the team's committed artifact — read theirs, don't
-rebuild; a rebuild would modify their tracked files. Otherwise, if Graphify is
-available, build it first. It gives you structure cheaply and steers the rest of the
-read:
-```bash
-/graphify .
-```
-That writes `graphify-out/` — kept out of `git status` everywhere by the machine-wide
-ignore (`~/.config/git/ignore`, seeded by `install.sh`), which matters because a repo
-with its own `.gitignore` never receives the template's ignore lines. Contents:
-`graph.json`, `GRAPH_REPORT.md`, `graph.html`.
-Read `graphify-out/GRAPH_REPORT.md` for the structural overview, and use
-`graphify query "..."` or `graphify explain "..."` to trace specific connections instead
-of opening every file. If Graphify isn't installed, skip this, map by reading, and note
-that the graph would have helped.
+### 2.1 Map by reading -- graph only if reading won't cover it
+
+Reading the source is the default map for every repo. Most repos are small enough to
+orient in by reading the foundational files (2.2) and structure (2.3) directly --
+do that, and skip the graph entirely.
+
+Build a Graphify graph **only** when the repo is genuinely too large or tangled to map
+by reading -- sprawling cross-module coupling, hundreds of files with no clear entry
+points -- or when the user asks for one. If you do:
+
+- First check whether this repo *tracks* its own `graphify-out/`
+  (`git ls-files graphify-out/` returns anything) -- then the graph is the team's
+  committed artifact: read theirs, don't rebuild; a rebuild would modify their
+  tracked files.
+- Otherwise run `/graphify .`. That writes `graphify-out/` (`graph.json`,
+  `GRAPH_REPORT.md`, `graph.html`) — kept out of `git status` everywhere by the
+  machine-wide ignore (`~/.config/git/ignore`, seeded by `install.sh` and
+  `cloud-setup.sh`), which matters because a repo with its own `.gitignore` never
+  receives the template's ignore lines.
+- Read `graphify-out/GRAPH_REPORT.md` for the structural overview, and use
+  `graphify query "..."` or `graphify explain "..."` to trace specific connections
+  instead of opening every file.
+
+If the repo would warrant a graph but Graphify isn't installed, say so, map by
+reading anyway, and note that the graph would have helped.
 
 ### 2.2 Read foundational files
 - README(s); package manifest (package.json, pyproject.toml, Cargo.toml, go.mod, etc.)
@@ -272,15 +282,16 @@ appends to and `/recall` reads -- and keep only a wikilink pointer to it in the 
 Decisions never live in the MOC itself; it's an index, not a copy.
 
 Write the vault markdown directly (`[[wikilinks]]` for note links) -- the vault is a
-folder of markdown, so writing files IS updating it. Keep the graph itself in the repo
-(`graphify-out/`, ignored machine-wide); the vault holds the human-readable memory.
+folder of markdown, so writing files IS updating it. If you built a graph, keep it in
+the repo (`graphify-out/`, ignored machine-wide); the vault holds the human-readable
+memory.
 
 ## Phase 7: Propose the first task
 
 Now that you understand both the repo and the intent, propose a concrete starting point --
 one first task or phase, not a whole project plan:
 - State the first task in a line or two, tied directly to the user's intent.
-- Name the 2-3 files or areas it will touch (use the graph).
+- Name the 2-3 files or areas it will touch (from your read, or the graph if you built one).
 - Flag any risk or unknown to resolve before starting.
 
 Record it under **Next** in `~/Vault/projects/<repo>/README.md`. Then ask whether they want
@@ -294,17 +305,17 @@ The repo already explains itself (a real AGENTS.md, maybe a MASTER_PLAN/STATUS s
 touch that -- it's the source of truth and better than anything you'd write. Just connect it to
 the memory layer:
 
-1. **Build the code graph** if it's missing: `/graphify .` (writes `graphify-out/`, ignored machine-wide).
-2. **Create the vault project space** at `~/Vault/projects/<repo>/` with a MOC that *points at*
+1. **Create the vault project space** at `~/Vault/projects/<repo>/` with a MOC that *points at*
    the repo's own docs (AGENTS.md, MASTER_PLAN, STATUS, ARCHITECTURE) -- an index, not a
-   re-summary. Never duplicate the north star. Link the key modules from the graph report, list
-   any open questions, and add a "Next" line only if the plan makes the next step obvious.
-3. **Quick drift check** (the same doctor pass as memory-checkpoint): if `CLAUDE.md` and
+   re-summary. Never duplicate the north star. List the key modules (from your read, or from a
+   graph if the repo is large enough to warrant one -- same bar as Phase 2.1), list any open
+   questions, and add a "Next" line only if the plan makes the next step obvious.
+2. **Quick drift check** (the same doctor pass as memory-checkpoint): if `CLAUDE.md` and
    `AGENTS.md` are duplicate copies, collapse `CLAUDE.md` to `@AGENTS.md`; fix any find-replace
    corruption (verify suspect tokens against the code); flag stale sections -- but never edit an
    immutable master plan or locked spec. **In a guest repo this check is report-only**: their
    tracked memory files are their system -- flag duplication or drift for the owners, fix nothing.
-4. Report what you wired (graph built, vault MOC created, anything reconciled). The repo is now in
+3. Report what you wired (vault MOC created, graph if you built one, anything reconciled). The repo is now in
    the memory layer without a re-onboarding.
 
 ## Edge cases
@@ -316,9 +327,10 @@ the memory layer:
 - **"Just set it up":** run Phase 2 silently, write the best `AGENTS.md` from the code, flag
   guessed sections, still create the vault space and propose a first task.
 - **Already has a filled-in AGENTS.md:** don't re-onboard. If it's not wired into the memory
-  layer yet, use wire-only mode above (graph + vault, leave the docs alone). A scaffolded stub
+  layer yet, use wire-only mode above (vault space, leave the docs alone). A scaffolded stub
   (just template placeholders) doesn't count as filled in -- do a full onboard to fill it. Only
   redo a full onboard over a real file if the user explicitly asks, renaming the old to
   `AGENTS.md.bak` first.
-- **Tools missing:** if Graphify isn't installed, say so, skip that step, and continue --
-  the intake still works, just with less automation.
+- **Tools missing:** if a repo is big enough that you'd have built a graph but Graphify
+  isn't installed, say so and map by reading -- the intake still works, just with more
+  reading.
