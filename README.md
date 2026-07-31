@@ -42,6 +42,8 @@ phrasing that a merge silently invalidates.
     scaffold.sh          Lay the standard layout into a project (non-destructive).
     sync.sh              Regenerate the global Claude + Codex files from canonical.
     install.sh           Wire everything into this machine (backs up first).
+    cloud-setup.sh       Headless subset of install.sh for ephemeral cloud VMs
+                         (run by the SessionStart hooks; never syncs the vault).
 
 **Tool support is not symmetrical.** The shared rules reach all three tools. Skills,
 slash commands, hooks, and the vault workflow (`/save`, `/recall`) are Claude
@@ -142,6 +144,30 @@ the reliable relative `@AGENTS.md` import.
 - Before compacting a long session: the `memory-checkpoint` skill reconciles
   `STATUS.md` + vault against git so nothing is lost.
 - Add a marketplace plugin: install via `/plugin`, then record it in `plugins.md`.
+
+## Cloud sessions
+
+Claude Code on the web runs in an ephemeral VM — nothing `install.sh` wired into
+your laptop exists there. Two `SessionStart` hooks close the gap, both no-ops on
+a local machine (they check `CLAUDE_CODE_REMOTE`):
+
+- **This repo:** `.claude/hooks/session-start.sh` runs `cloud-setup.sh` when a
+  cloud session boots on agent-config itself — bakes the rules into the VM's
+  global `CLAUDE.md`, links skills and slash commands, seeds the machine-wide
+  git ignore.
+- **Scaffolded repos:** the project template ships the same hook. It clones your
+  agent-config fork and runs `cloud-setup.sh`. Set `AGENTS_REPO` to your fork's
+  clone URL in the cloud environment's settings, and make sure the environment
+  can reach it (public fork, or added to the environment's repositories).
+  Without `AGENTS_REPO` the hook is a silent no-op and the session simply runs
+  without the personal layer.
+
+**The vault stays home, on purpose.** It holds secrets (`repo-local/` carries
+`.env` files) and never leaves your own machine, so cloud sessions run without
+the Knowledge layer: `/save` and `/recall` hit an empty `~/Vault` that dies with
+the VM, and the SessionEnd breadcrumb hook is not wired. Anything worth keeping
+from a cloud session should be committed to the repo, or added to the vault by
+hand later.
 
 ## Uninstall
 
