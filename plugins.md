@@ -10,6 +10,12 @@ machine reinstalls them fresh and updatable.
 
 (The official marketplace is built in; no `marketplace add` step needed.)
 
+    /plugin marketplace add pbakaus/impeccable
+    /plugin install impeccable@impeccable
+
+(Design skill + /impeccable commands. Run `/impeccable init` only in owned repos
+with a frontend; never in guest repos — it writes PRODUCT.md/DESIGN.md at root.)
+
 ## Notes
 - This lists user-scope plugins only. Project-scoped plugins (installed for a single
   repo) live in that repo's own `.claude` config and are not tracked here.
