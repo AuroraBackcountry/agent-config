@@ -36,7 +36,7 @@ Use judgment, and any project can override a point with an explicit note.
 ## Projects
 - Use the standard layout: `/scaffold` sets it up, `repo-intake` onboards an unfamiliar repo, `memory-checkpoint` locks in state before compacting.
 - Not every repo is mine. In a **guest repo** (someone else owns it; I branch and PR), the memory system never writes tracked files: no scaffold, no AGENTS.md/STATUS.md edits, no .gitignore changes. My agent context lives in the vault (`~/Vault/projects/<repo>/repo-local/`) and links into the repo as gitignored files. Start shared-repo sessions with the `standup` skill.
-- Decisions go to `~/Vault/decisions`, session notes to `~/Vault/logs`.
+- Decisions go to `~/Vault/decisions`, session notes to `~/Vault/logs`. On a shared repo, a decision that affects teammates also goes in the commit or PR description — their standup reads git, not my vault. A decision with no commit to ride on goes in STATUS.md when it lands.
 
 ## Memory and source of truth
 - Four layers, each a different question. Rules: AGENTS.md + overlays (how I behave). Knowledge: the Obsidian vault (intent, decisions, status). Structure: the current source, read live; Graphify (`graphify-out/`) is an on-demand map for large or unfamiliar repos — nothing builds it by default. History: git (the immutable record).
