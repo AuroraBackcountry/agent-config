@@ -34,6 +34,8 @@ phrasing that a merge silently invalidates.
     skills/              Skills, authored + vendored (symlinked into ~/.claude/skills;
                          .skill-lock.json tracks the npx-skills-vendored ones, and
                          THIRD_PARTY_LICENSES.md attributes all vendored components).
+                         playwright-cli is generated, not npx-vendored: regenerate with
+                         `playwright-cli install --skills` and copy the folder back in.
     commands/            Global slash commands: /scaffold, /save, /recall.
     hooks/               session-end.sh (vault breadcrumb + session trace) and
                          graphify-post-commit.sh (background code-graph refresh).
@@ -106,7 +108,8 @@ into Cursor Settings > Rules > User Rules (Cursor has no on-disk global file).
   session. Delete it if it's not your style (`sync.sh` handles its absence).
 - **Vault location** — defaults to `~/Vault`; override with `VAULT_DIR`.
 - **`plugins.md`** — my marketplace shopping list; replace with yours.
-- **`skills/`** — prune what you won't use (`graphify` needs the CLI installed).
+- **`skills/`** — prune what you won't use (`graphify` needs the CLI installed,
+  `playwright-cli` needs `npm i -g @playwright/cli`).
   `.skill-lock.json` tracks the npx-skills-vendored ones; `THIRD_PARTY_LICENSES.md`
   attributes everything vendored.
 - **Personal skills you don't want published:** keep the real folder outside the repo
@@ -214,11 +217,13 @@ storage that does not sync. To avoid fragmentation:
 
 ## Credits
 
-Vendored components, all MIT — full texts in
-[THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md):
+Vendored components — full texts in
+[THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md). MIT:
 [kepano/obsidian-skills](https://github.com/kepano/obsidian-skills) (defuddle),
 [Graphify-Labs/graphify](https://github.com/Graphify-Labs/graphify) (graphify skill),
 [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) (ponytail rules).
+Apache-2.0: [microsoft/playwright-cli](https://github.com/microsoft/playwright-cli)
+(playwright-cli skill).
 
 ## License
 

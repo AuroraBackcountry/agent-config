@@ -24,6 +24,7 @@ Use judgment, and any project can override a point with an explicit note.
 - Mixed stack (AWS, Supabase, Next.js, Plasmic, and more), not locked to one.
 - Lean toward durability, low latency, robustness, and security when choosing how to build.
 - Code: include types/hints; comment only the non-obvious.
+- Browser work has two tools, don't deliberate per task. `playwright-cli` (the `playwright-cli` skill) is the default driver: cross-browser, ref-based interaction, sessions, request mocking, and it generates/heals the `@playwright/test` suites I already have. `chrome-devtools-mcp` is Chrome-only and for diagnosis: performance traces, Core Web Vitals, network inspection, console with source-mapped stacks, heap snapshots, Lighthouse. Rule of thumb: Playwright tells me the flow broke, chrome-devtools tells me why it's slow or why a request failed.
 
 ## Writing for guests / social
 - Tight, no marketing fluff. Ask before anything promotional. No em-dashes in what I publish.
