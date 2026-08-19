@@ -16,6 +16,21 @@ machine reinstalls them fresh and updatable.
 (Design skill + /impeccable commands. Run `/impeccable init` only in owned repos
 with a frontend; never in guest repos — it writes PRODUCT.md/DESIGN.md at root.)
 
+    /plugin marketplace add upstash/context7
+    /plugin install context7@context7-marketplace
+
+(Upstash Context7: version-specific library docs. Upstash's own plugin, not the
+thinner `context7@claude-plugins-official` mirror — same hosted endpoint, but it
+adds the auto-trigger skill, a `docs-researcher` subagent that keeps doc dumps out
+of the main context, and `/context7:docs`. ~149 tok always-on.
+
+No local process: it's Context7's hosted MCP server over HTTP, so queries leave the
+machine. Public library docs only, never anything private. Works unauthenticated;
+`export CONTEXT7_API_KEY` before launching Claude Code if the anonymous rate limit
+starts biting. Do NOT use `ctx7 setup` to install it — its `--universal` target
+writes into `~/.agents/skills`, i.e. this repo, and its MCP mode writes an agent
+rules file; both go around sync.sh.)
+
 ## Notes
 - This lists user-scope plugins only. Project-scoped plugins (installed for a single
   repo) live in that repo's own `.claude` config and are not tracked here.
