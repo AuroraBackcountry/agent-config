@@ -3,7 +3,8 @@ description: Save a session log and any decisions to the local Obsidian vault
 ---
 Write a concise session record to my vault (default ~/Vault, or $VAULT_DIR if set).
 
-1. Determine the project name from the current git repo or folder name.
+1. Determine the project name with the global project-key rule (main repo directory name via
+   `git rev-parse --git-common-dir`; folder name only outside a repo).
 2. Create or append a dated log at ~/Vault/logs/<YYYY-MM-DD>-<project>.md with:
    - What we worked on and finished
    - Key decisions and why
