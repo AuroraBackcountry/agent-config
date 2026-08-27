@@ -182,6 +182,7 @@ cat > "$plist" <<EOF
   </array>
   <key>StartCalendarInterval</key>
   <dict><key>Hour</key><integer>17</integer><key>Minute</key><integer>0</integer></dict>
+  <key>RunAtLoad</key><true/>
 </dict>
 </plist>
 EOF
