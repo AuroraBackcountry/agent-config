@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # sync.sh: regenerate the global tool files from the canonical source.
-# Both Claude and Codex globals are BAKED (concatenated), not imported, because
+# The Claude global is BAKED (concatenated), not imported, because
 # @import is unreliable for home/absolute paths (and this home path has a space).
 # Per-repo CLAUDE.md still uses the reliable relative @AGENTS.md import.
 #
@@ -19,7 +19,7 @@ CHECK=0
 [ "${1:-}" = "--check" ] && CHECK=1
 
 # every source must exist before anything is written
-for f in AGENTS.md overlays/claude-code.md overlays/codex.md overlays/cursor.md; do
+for f in AGENTS.md overlays/claude-code.md overlays/cursor.md; do
   [ -f "$AGENTS_HOME/$f" ] || { echo "error: missing $AGENTS_HOME/$f" >&2; exit 1; }
 done
 
@@ -75,7 +75,6 @@ bake() { # bake <overlay> <dest> <label>
 }
 
 bake overlays/claude-code.md "$HOME/.claude/CLAUDE.md" "Claude global"
-bake overlays/codex.md "$HOME/.codex/AGENTS.md" "Codex global"
 bake overlays/cursor.md "$AGENTS_HOME/generated/cursor-user-rules.md" "Cursor bundle"
 
 if [ "$CHECK" -eq 1 ]; then
