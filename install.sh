@@ -126,6 +126,38 @@ else
 fi
 echo
 
+# Daily vault backup: a launchd agent runs hooks/vault-daily.sh at 17:00 (commit +
+# push ~/Vault to its private remote). launchd, not cron: a run missed while the
+# laptop sleeps fires on the next wake; cron would skip it silently. The plist is
+# generated, so overwriting it on re-install is safe.
+chmod +x "$AGENTS_HOME/hooks/vault-daily.sh" 2>/dev/null || true
+plist="$HOME/Library/LaunchAgents/com.agent-config.vault-daily.plist"
+mkdir -p "$(dirname "$plist")"
+cat > "$plist" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.agent-config.vault-daily</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>$AGENTS_HOME/hooks/vault-daily.sh</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <dict><key>Hour</key><integer>17</integer><key>Minute</key><integer>0</integer></dict>
+</dict>
+</plist>
+EOF
+launchctl bootout "gui/$(id -u)" "$plist" 2>/dev/null || true
+if launchctl bootstrap "gui/$(id -u)" "$plist" 2>/dev/null; then
+  echo "installed launchd agent com.agent-config.vault-daily (daily 17:00)"
+else
+  echo "note: could not load $plist via launchctl; load it by hand or run"
+  echo "  bash $AGENTS_HOME/hooks/vault-daily.sh   from cron/manually instead."
+fi
+echo
+
 # Keep the baked globals fresh: a post-commit hook in this repo re-runs sync.sh
 # (idempotent and instant), so a committed rules edit can't silently go stale.
 if hooksdir="$(git -C "$AGENTS_HOME" rev-parse --path-format=absolute --git-path hooks 2>/dev/null)"; then

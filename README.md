@@ -37,7 +37,9 @@ phrasing that a merge silently invalidates.
                          playwright-cli is generated, not npx-vendored: regenerate with
                          `playwright-cli install --skills` and copy the folder back in.
     commands/            Global slash commands: /scaffold, /save, /recall.
-    hooks/               session-end.sh (vault breadcrumb + session trace) and
+    hooks/               session-end.sh (vault breadcrumb + session trace, repo
+                         sessions only), vault-daily.sh (daily vault commit +
+                         push, wired as a launchd agent by install.sh), and
                          graphify-post-commit.sh (background code-graph refresh).
     templates/project/   The standard per-repo skeleton (AGENTS.md, STATUS.md, .claude/).
     plugins.md           Marketplace plugins to install (not vendored here).
@@ -182,7 +184,9 @@ Reverse everything `install.sh` did:
    `~/.claude/settings.json.bak.*` if the SessionEnd hook was merged into an
    existing settings file).
 2. Remove the `~/.claude/skills` symlink and the per-command symlinks in
-   `~/.claude/commands`.
+   `~/.claude/commands`. Unload the vault-backup launchd agent:
+   `launchctl bootout "gui/$(id -u)" ~/Library/LaunchAgents/com.agent-config.vault-daily.plist`
+   and delete that plist.
 3. Remove the SessionEnd hook entry from `~/.claude/settings.json` — on a machine
    where no settings file existed before install, `install.sh` created it, so
    delete the entry (or the file) by hand; there is no `.bak` for that case.
