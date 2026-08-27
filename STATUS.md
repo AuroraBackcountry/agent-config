@@ -33,8 +33,12 @@ is a reference-only checkout; editing it gets wiped by the next sync.
 
 - **The vault has no backup.** `~/Vault` is git-versioned locally (the SessionEnd hook
   snapshots it every session) but has no remote, and the Time Machine destination fails to
-  mount. It holds the only copy of the `plasmic-designer` skill, the guideops `.env`
-  files, and every decision note. Its `.git` is 82 MB against a 2 MB working tree.
+  mount. Nothing else holds its 11 decision files, 50 session logs, or the 520 KB of
+  guideops design and plan docs under `projects/guideops/repo-local/` (a guest repo, so
+  those never ride the tree). Two things commonly assumed at risk are not: the
+  `plasmic-designer` skill is recoverable byte-identical from this repo's own public
+  history (`git show d918316^:skills/plasmic-designer/SKILL.md`), and the vault holds no
+  `.env` files at all. Its `.git` is 82 MB against a 2 MB working tree.
 - **Ending a session takes two commands.** `/save` writes history (vault log, decisions)
   and `memory-checkpoint` writes state (`STATUS.md`); neither is sufficient alone, both
   write the vault MOC's "Next" line, and checkpoint's "only if no `/save` ran this
