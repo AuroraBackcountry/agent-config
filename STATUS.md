@@ -44,8 +44,6 @@ is a reference-only checkout; it is only as fresh as the last push + pull.
 
 ## Known gaps
 
-- **graphify's SKILL.md is still 41 KB** of upstream build machinery for a workflow
-  that uses two commands; shrink-or-drop is an open decision.
 - **Nothing prunes the read surfaces.** `/recall` loads whole decision files
   (`~/Vault/decisions/infoex-api.md` is 74 KB) and the monthly `_traces-*.md` files
   grow all month (~15 KB/day when busy); `_sessions.log` is repo-only now but
@@ -56,12 +54,11 @@ is a reference-only checkout; it is only as fresh as the last push + pull.
   banners.
 - **Backup coverage is the vault remote, nothing else.** Time Machine's destination
   still fails to mount; `~/.claude/projects` (~780 MB of transcripts) and
-  `~/.claude/settings.json` have no off-disk copy. `~/Vault-backup-2026-08-26` (the
-  pre-scrub safety copy, secrets included in its history) sits on the same disk
-  awaiting a keep-or-delete call.
+  `~/.claude/settings.json` have no off-disk copy.
 - No check covers `install.sh`, `sync.sh`, or `scaffold.sh`.
 
 ## Next
 
-1. Decide graphify: shrink the skill to a query-first ~3 KB, or drop it.
-2. Decide the fate of `~/Vault-backup-2026-08-26` once the remote has earned trust.
+1. Fix the Time Machine destination (or pick another off-disk backup for
+   `~/.claude/projects` and `~/.claude/settings.json`) — the last data with a
+   single copy.
