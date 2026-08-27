@@ -8,59 +8,69 @@
 
 Public since 2026-07-26 under MIT. Two clones on this machine: **`~/.agents` is the
 canonical clone and the live install — every edit happens there**. `~/code/agent-config`
-is a reference-only checkout; editing it gets wiped by the next sync.
+is a reference-only checkout; it is only as fresh as the last push + pull.
 
-- **Rules.** `AGENTS.md` (the shared payload) + `rules/ponytail.md` + one per-tool overlay
-  are baked by `sync.sh` into `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`, and
-  `generated/cursor-user-rules.md`. A post-commit hook re-bakes on every commit and
-  `sync.sh --check` reports drift. The destinations carry a GENERATED marker; the sources
-  deliberately do not, so nothing that keys off that marker protects `AGENTS.md` itself.
-- **Skills.** Three authored (`repo-intake`, `memory-checkpoint`, `standup`), three
-  vendored (`defuddle`, `graphify`, `playwright-cli`), plus `plasmic-designer` symlinked
-  from the vault and gitignored. `skills/` is symlinked into `~/.claude/skills`.
-- **Commands.** `/scaffold`, `/save`, `/recall`, symlinked per file into
-  `~/.claude/commands`.
-- **Hooks.** `session-end.sh` writes a breadcrumb plus a per-session trace and snapshots
-  the vault; `graphify-post-commit.sh` refreshes a repo's code graph in the background,
-  opt-in per repo via an existing `graphify-out/graph.json`.
-- **Browser tooling.** `playwright-cli` drives, `chrome-devtools-mcp` diagnoses with CrUX
-  upload disabled in both the user and `~`-local scopes. context7 comes from Upstash's
-  own marketplace, not Anthropic's mirror.
-- **Checks.** `tests/session-end.test.sh` covers the session-end hook: worktree project
-  identity, non-repo filtering, and concurrent-append atomicity. It is the only test here.
+- **Rules.** `AGENTS.md` + `rules/ponytail.md` + `overlays/claude-code.md` are baked by
+  `sync.sh` into exactly one destination: `~/.claude/CLAUDE.md`. Baking survived the
+  2026-08-26 audit on its real merit (Cowork skips user-scope imports); the stale
+  rationale is corrected in the sync.sh header. Freshness has two mechanisms: the
+  post-commit hook (local commits) and a SessionStart `--check || sync` hook (heals
+  drift from ff-pulls — verified by injecting drift and watching it re-bake).
+  Codex support is deleted (no binary, zero sessions in 31 days; history has it).
+  Cursor is manual: `overlays/cursor.md` exists to paste, nothing generates a bundle.
+- **Skills.** Three authored (`repo-intake` — cut to a 7.4 KB kernel, `memory-checkpoint`,
+  `standup`), one vendored-and-forked (`defuddle`, shrunk, install line corrected to
+  `defuddle-cli`), one vendored (`graphify`), one machine-generated (`playwright-cli`,
+  produced by install.sh from the installed `@playwright/cli`, gitignored, cannot go
+  stale against the binary). `skills/` is symlinked into `~/.claude/skills`.
+  `plasmic-designer` is deleted (one use ever; recoverable from vault history).
+- **Session-end roles.** `/save` is the single session-end entry point: one git
+  take-stock, then STATUS.md (state) and the vault (log, decisions, MOC pointer).
+  `memory-checkpoint` is mid-session capture plus the doctor pass, of which it holds
+  the ONLY copy; repo-intake delegates to it.
+- **Hooks.** `session-end.sh`: breadcrumb + trace for repo sessions only, writes no
+  git. `vault-daily.sh`: launchd agent at 17:00 commits and pushes `~/Vault` to the
+  private remote (`AuroraBackcountry/vault`); one evidence line per run in
+  `~/.cache/vault-daily.log`.
+- **Vault.** Git-versioned with an off-machine remote. History was rewritten
+  2026-08-26 to remove three guideops `.env` files before the first push;
+  `~/Vault/.gitignore` fences `*.env` out going forward. `.git` is packed (~2 MB,
+  from 84 MB of loose objects under the old per-session snapshot).
+- **Graphify.** On-demand only, machine-wide: no post-commit hook anywhere, no graph
+  in this repo, guideops' stale graph deleted. infoex-api, aurora-backcountry, and
+  avalanche-search keep graphs that stay frozen until a manual `/graphify --update`.
+- **Checks.** `tests/session-end.test.sh` — 12 checks, including the non-repo
+  writes-nothing gate and never-commits-the-vault. Still the only test here.
 
 ## Known gaps
 
-- **The vault has no backup.** `~/Vault` is git-versioned locally (the SessionEnd hook
-  snapshots it every session) but has no remote, and the Time Machine destination fails to
-  mount. Nothing else holds its 11 decision files, 50 session logs, or the 520 KB of
-  guideops design and plan docs under `projects/guideops/repo-local/` (a guest repo, so
-  those never ride the tree). Two things commonly assumed at risk are not: the
-  `plasmic-designer` skill is recoverable byte-identical from this repo's own public
-  history (`git show d918316^:skills/plasmic-designer/SKILL.md`), and the vault holds no
-  `.env` files at all. Its `.git` is 82 MB against a 2 MB working tree.
-- **Ending a session takes two commands.** `/save` writes history (vault log, decisions)
-  and `memory-checkpoint` writes state (`STATUS.md`); neither is sufficient alone, both
-  write the vault MOC's "Next" line, and checkpoint's "only if no `/save` ran this
-  session" condition is not observable by anything.
-- **Nothing prunes the history surfaces.** STATUS changelogs, `~/Vault/decisions/*.md`,
-  and `logs/_traces-*.md` all grow monotonically. infoex-api's `STATUS.md` is 281 KB, of
-  which 75% is changelog sitting above the state it is supposed to surface.
-- **Two duplications have already diverged.** The doctor pass exists in both
-  `memory-checkpoint` Phase 4 and `repo-intake`'s wire-only mode, and the intake copy is
-  the weaker one. The machine-wide gitignore seeding block is byte-identical in
-  `install.sh` and `cloud-setup.sh`.
-- **Codex support has no user on this machine.** The `codex` CLI is not on PATH and the
-  newest session in `~/.codex/sessions` is 2026-07-26. Cursor is still in use. The cost is
-  roughly 50 lines across 8 files; the argument for keeping it is that multi-tool support
-  is what the public README sells.
-- No check covers `install.sh`, `sync.sh`, `scaffold.sh`, or `graphify-post-commit.sh`.
+- **Nothing from the 2026-08-26 overhaul is pushed.** ~/.agents `main` is local-only
+  ahead of `origin/main` (as is infoex-api's `main` by one docs commit); the
+  reference checkout lags until push + pull.
+- **graphify's SKILL.md is still 41 KB** of upstream build machinery for a workflow
+  that uses two commands; shrink-or-drop is an open decision.
+- **Three repos still track the dead cloud hook** (accounting-agent, infoex-api,
+  quickbooks-connector carry the scaffolded SessionStart hook + wiring). Harmless
+  locally (exit 0); in a cloud session it would now fail, since `cloud-setup.sh` no
+  longer exists.
+- **Nothing prunes the read surfaces.** `/recall` loads whole decision files
+  (`~/Vault/decisions/infoex-api.md` is 74 KB) and the monthly `_traces-*.md` files
+  grow all month (~15 KB/day when busy); `_sessions.log` is repo-only now but
+  unbounded.
+- **Convention prose is still restated** in places: the project-key derivation
+  appears inline in save.md and recall.md beside their pointer to the global rule;
+  state-not-lifecycle text lives in AGENTS.md, memory-checkpoint, and both STATUS
+  banners.
+- **Backup coverage is the vault remote, nothing else.** Time Machine's destination
+  still fails to mount; `~/.claude/projects` (~780 MB of transcripts) and
+  `~/.claude/settings.json` have no off-disk copy. `~/Vault-backup-2026-08-26` (the
+  pre-scrub safety copy, secrets included in its history) sits on the same disk
+  awaiting a keep-or-delete call.
+- No check covers `install.sh`, `sync.sh`, or `scaffold.sh`.
 
 ## Next
 
-1. One session-end entry point: `/save` takes stock once and writes both surfaces;
-   `memory-checkpoint` narrows to mid-session capture and the doctor pass.
-2. History out of the hot path: `STATUS.md` keeps state, `CHANGELOG.md` keeps history,
-   `/recall` reads the tail of the decisions file rather than all of it.
-3. Collapse the two duplications.
-4. Then the vault backup.
+1. Push `~/.agents` main; pull the reference checkout and infoex-api's main.
+2. Decide graphify: shrink the skill to a query-first ~3 KB, or drop it.
+3. Strip the dead cloud hook from the three scaffolded repos.
+4. Decide the fate of `~/Vault-backup-2026-08-26` once the remote has earned trust.
