@@ -133,6 +133,35 @@ else
 fi
 echo
 
+# SessionStart hook: re-bake a stale global at session start. Closes the ff-pull
+# hole — the repo's post-commit hook fires only on local commits, so a `git pull`
+# of commits authored elsewhere (cloud session, another machine, web edit) leaves
+# ~/.claude/CLAUDE.md stale until the next local commit. --check is a cheap diff;
+# sync.sh writes only on drift, and its non-tty marker guard still applies.
+sync_start_cmd="bash \"$AGENTS_HOME/sync.sh\" --check >/dev/null 2>&1 || bash \"$AGENTS_HOME/sync.sh\" >/dev/null 2>&1"
+if [ -f "$settings" ] && command -v jq >/dev/null 2>&1; then
+  if jq -e '.hooks.SessionStart[]?.hooks[]?.args[]? | select(contains("sync.sh"))' "$settings" >/dev/null 2>&1; then
+    echo "SessionStart sync-check already wired in $settings"
+  else
+    cp "$settings" "$settings.bak.$STAMP"
+    tmp="$(mktemp)"
+    if jq --arg cmd "$sync_start_cmd" '
+        .hooks = (.hooks // {})
+        | .hooks.SessionStart = (.hooks.SessionStart // [])
+        | .hooks.SessionStart += [ { "hooks": [ { "type": "command", "command": "bash", "args": ["-c", $cmd] } ] } ]
+      ' "$settings" > "$tmp" 2>/dev/null; then
+      mv "$tmp" "$settings"
+      echo "wired SessionStart sync-check into $settings (backup: $settings.bak.$STAMP)"
+    else
+      rm -f "$tmp" "$settings.bak.$STAMP"
+      echo "note: could not add the SessionStart sync-check to $settings; add a SessionStart hook running: $sync_start_cmd"
+    fi
+  fi
+else
+  echo "note: SessionStart sync-check not wired (needs jq and an existing $settings); add a SessionStart hook running: $sync_start_cmd"
+fi
+echo
+
 # Daily vault backup: a launchd agent runs hooks/vault-daily.sh at 17:00 (commit +
 # push ~/Vault to its private remote). launchd, not cron: a run missed while the
 # laptop sleeps fires on the next wake; cron would skip it silently. The plist is
