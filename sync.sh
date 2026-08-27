@@ -90,6 +90,19 @@ bake() { # bake <overlay> <dest> <label>
 bake overlays/claude-code.md "$HOME/.claude/CLAUDE.md" "Claude global"
 
 if [ "$CHECK" -eq 1 ]; then
+  # Machine-wide gitignore: REPORT drift, never write — seeding is install.sh's
+  # job (install-time is enough for four near-static patterns; a standing write
+  # on every commit would be machinery the problem doesn't earn).
+  gi="$(git config --get core.excludesfile 2>/dev/null || true)"
+  gi="${gi:-${XDG_CONFIG_HOME:-$HOME/.config}/git/ignore}"
+  gi="${gi/#\~/$HOME}"
+  while IFS= read -r pat; do
+    case "$pat" in ''|'#'*) continue ;; esac
+    if ! grep -qxF "$pat" "$gi" 2>/dev/null; then
+      echo "stale: machine-wide git ignore ($gi) missing '$pat' — re-run ./install.sh"
+      drift=1
+    fi
+  done < "$AGENTS_HOME/templates/project/.gitignore"
   [ "$drift" -eq 0 ] && echo "globals match canonical sources"
   exit "$drift"
 fi
