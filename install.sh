@@ -174,7 +174,5 @@ bash "$AGENTS_HOME/sync.sh"
 
 echo
 echo "Done."
-echo "Manual step for Cursor: paste generated/cursor-user-rules.md into"
-echo "  Cursor Settings > Rules > User Rules."
 echo
 echo "Any backups use the suffix .bak.$STAMP and were left in place."

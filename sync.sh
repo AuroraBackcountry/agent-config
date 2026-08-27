@@ -19,7 +19,7 @@ CHECK=0
 [ "${1:-}" = "--check" ] && CHECK=1
 
 # every source must exist before anything is written
-for f in AGENTS.md overlays/claude-code.md overlays/cursor.md; do
+for f in AGENTS.md overlays/claude-code.md; do
   [ -f "$AGENTS_HOME/$f" ] || { echo "error: missing $AGENTS_HOME/$f" >&2; exit 1; }
 done
 
@@ -75,13 +75,8 @@ bake() { # bake <overlay> <dest> <label>
 }
 
 bake overlays/claude-code.md "$HOME/.claude/CLAUDE.md" "Claude global"
-bake overlays/cursor.md "$AGENTS_HOME/generated/cursor-user-rules.md" "Cursor bundle"
 
 if [ "$CHECK" -eq 1 ]; then
   [ "$drift" -eq 0 ] && echo "globals match canonical sources"
   exit "$drift"
 fi
-
-echo
-echo "Cursor is manual: paste generated/cursor-user-rules.md into"
-echo "Cursor Settings > Rules > User Rules (Cursor has no on-disk global file)."

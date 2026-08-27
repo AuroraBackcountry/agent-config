@@ -1,7 +1,6 @@
 *.bak.*
 .DS_Store
 graphify-out/
-generated/
 # personal skills: real folder lives in the vault, symlinked in (see README)
 skills/plasmic-designer
 CLAUDE.local.md

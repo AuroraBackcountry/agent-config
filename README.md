@@ -1,9 +1,9 @@
 # agent-config
 
 A portable, personal AI-agent setup you can fork and make your own: **one canonical
-rules file** shared across Claude Code, Codex, and Cursor, plus skills, slash commands,
-session hooks, a project scaffold, and a plain-markdown memory layer that survives
-between sessions.
+rules file** baked into Claude Code's global config (with a Cursor overlay you can
+paste in by hand), plus skills, slash commands, session hooks, a project scaffold,
+and a plain-markdown memory layer that survives between sessions.
 
 Written by one solo developer for real daily use, published so anyone can adopt the
 structure. The rules content is mine — the point is that you replace it with yours.
@@ -15,7 +15,7 @@ layers, each answering a different question:
 
 | Layer | Question | Lives in |
 |---|---|---|
-| **Rules** | How should the agent behave? | `AGENTS.md` + per-tool overlays, baked into each tool's global config by `sync.sh` |
+| **Rules** | How should the agent behave? | `AGENTS.md` + per-tool overlays; `sync.sh` bakes the Claude global (`~/.claude/CLAUDE.md`) |
 | **Knowledge** | What was decided, and why? | A local vault (`~/Vault`) — plain markdown folders under git, committed and pushed to a private remote once a day by `hooks/vault-daily.sh`; Obsidian is a nice viewer, not a requirement |
 | **Structure** | How does the code connect? | The current source, read live. For large or unfamiliar repos, an optional derived code graph (`graphify-out/`, gitignored), built on demand with `/graphify` — nothing refreshes it automatically, so treat it as a dated map |
 | **History** | What actually happened? | git — the immutable record |
@@ -92,9 +92,10 @@ cd ~/.agents
 ./install.sh
 ```
 
-Manual step for Cursor: paste `generated/cursor-user-rules.md` (built by `sync.sh`)
-into Cursor Settings > Rules > User Rules (Cursor has no on-disk global file).
-`./sync.sh --check` reports when any baked output is stale.
+Cursor (optional, manual): paste `AGENTS.md` + `overlays/cursor.md` into Cursor
+Settings > Rules > User Rules — Cursor has no on-disk global file and nothing here
+generates a bundle for it. `./sync.sh --check` reports when the baked Claude global
+is stale.
 
 ## Make it yours
 
@@ -117,7 +118,7 @@ into Cursor Settings > Rules > User Rules (Cursor has no on-disk global file).
   skill stays live while the repo stays clean. Re-clone the repo and it's one `ln -s`
   to restore.
 
-Then run `./sync.sh` to regenerate the globals whenever you change rules or overlays.
+Then run `./sync.sh` to regenerate the global whenever you change rules or overlays.
 
 ## How the globals are wired
 
