@@ -134,9 +134,10 @@ the reliable relative `@AGENTS.md` import.
   It lays down `AGENTS.md`, a `STATUS.md` (the single build-truth surface), and
   `.claude/` scaffolding.
 - Change how you work: edit `AGENTS.md` (or an overlay), then run `./sync.sh`.
-- Save context: `/save` writes a session log + decisions into the vault. The
-  SessionEnd hook also traces every session automatically (branch, changes, transcript
-  path, first prompt) so a forgotten `/save` still leaves a searchable record.
+- End a session: `/save` takes stock against git once and writes both surfaces —
+  `STATUS.md` (state) and the vault (session log + decisions). The SessionEnd hook
+  also traces every repo session automatically (branch, changes, transcript path,
+  first prompt) so a forgotten `/save` still leaves a searchable record.
 - Resume context: `/recall` reads the recent vault notes for the current project.
 - Onboard an unfamiliar repo: the `repo-intake` skill maps it, writes its
   `AGENTS.md`, and wires the vault (building a Graphify graph only when the repo
@@ -145,8 +146,9 @@ the reliable relative `@AGENTS.md` import.
   the repo as gitignored files — nothing lands in the owner's tracked tree.
 - Start a session on a repo you share with others: the `standup` skill — is my memory
   intact, what changed while I was gone, who is in which files, any migration drift.
-- Before compacting a long session: the `memory-checkpoint` skill reconciles
-  `STATUS.md` + vault against git so nothing is lost.
+- Before compacting mid-session: the `memory-checkpoint` skill captures verified
+  state into `STATUS.md` and repairs memory-file drift (the doctor pass). The vault
+  is `/save`'s to write, and session end is `/save`'s job.
 - Add a marketplace plugin: install via `/plugin`, then record it in `plugins.md`.
 
 ## Cloud sessions

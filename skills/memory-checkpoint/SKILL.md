@@ -1,21 +1,21 @@
 ---
 name: memory-checkpoint
 description: >
-  Accurately capture where a build stands into durable memory before you compact
-  context or step away, so you can compact and keep going without losing the thread.
-  Verifies against git and the code (never invents state), updates only the mutable
-  memory (STATUS.md, the Obsidian vault, AGENTS.md "current focus"), and leaves the
-  immutable master plan and locked specs alone. Also repairs drift in the memory
-  files: collapses a duplicated CLAUDE.md/AGENTS.md into the @import, fixes
-  find-replace corruption, and flags stale sections.
+  Mid-session checkpoint: accurately capture where a build stands into STATUS.md (or
+  the equivalent status surface) before you compact context or step away mid-work.
+  Verifies against git and the code (never invents state) and leaves the immutable
+  master plan and locked specs alone. Also the sole home of the doctor pass that
+  repairs drift in the memory files: collapses a duplicated CLAUDE.md/AGENTS.md into
+  the @import, fixes find-replace corruption, and flags stale sections.
 
-  Use when: nearing the context window and about to /compact, "update the memory",
-  "lock in where we are", "checkpoint before I compact", "save state", "capture where
-  we're at", at the end of a work session or phase, or when a repo's memory files look
-  stale, duplicated, or corrupted and need reconciling.
+  Use when: nearing the context window and about to /compact, "checkpoint before I
+  compact", "lock in where we are", "capture where we're at", or when a repo's memory
+  files look stale, duplicated, or corrupted and need reconciling.
 
-  NOT first-contact onboarding (that's repo-intake) and NOT personal task tracking
-  (out of scope). This keeps a codebase's build-state memory accurate.
+  NOT the session-end writer -- that is /save, which takes stock once and writes both
+  STATUS.md and the vault (log, decisions, MOC). NOT first-contact onboarding (that's
+  repo-intake) and NOT personal task tracking. This keeps build-state memory accurate
+  mid-flight.
 ---
 
 # Memory Checkpoint
@@ -66,10 +66,8 @@ step, never this boundary.
 
 Don't assume a layout. Find where THIS project keeps memory:
 - **Status doc** (`STATUS.md` or similar) -- the mutable build state. Primary target.
-- **Vault** (`~/Vault`; `VAULT_DIR` overrides): session logs live in
-  `~/Vault/logs/<YYYY-MM-DD>-<project>.md`, decisions in `~/Vault/decisions/<project>.md`,
-  and the project MOC (`~/Vault/projects/<repo>/README.md`) holds only pointers and a
-  "Next" line. Update these.
+- **Vault** (`~/Vault`; `VAULT_DIR` overrides): read the project MOC
+  (`~/Vault/projects/<repo>/README.md`) for context. `/save` writes the vault; you don't.
 - **`AGENTS.md` "Current focus"** -- only if the project uses AGENTS.md as its status
   surface (small projects with no STATUS.md), **and only when that file is repo context,
   never a rules payload**. `~/.agents/AGENTS.md` is the source `sync.sh` bakes into every
@@ -96,10 +94,10 @@ Update each mutable surface with the verified state:
   entries are frozen history (past tense: `opened #89 as draft`), and the top-of-file
   current-state block is the ONLY thing a reader should trust. Reconcile stale text in place;
   don't prepend a newer banner that silently supersedes an old one.
-- **Vault:** refresh the MOC's "Next" pointer only. Session logs and decisions belong to
-  `/save` -- append a dated log entry to `~/Vault/logs/<YYYY-MM-DD>-<project>.md` (the
-  file `/recall` reads) ONLY if no `/save` ran this session and something durable would
-  otherwise be lost. Checkpoint owns state; `/save` owns history.
+- **Vault:** don't write it. Session logs, decisions, and the MOC's "Next" pointer are
+  all `/save`'s at session end. Checkpoint owns the status doc, nothing else -- the old
+  "append a log only if no /save ran this session" fallback is gone because nothing
+  could observe whether /save ran; if the session is ending, run /save.
 - Keep it tight and factual. State current truth -- no "previously X, now Y" narration, no
   filler. The file earns its keep by being scannable next session.
 
