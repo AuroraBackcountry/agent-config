@@ -44,15 +44,8 @@ is a reference-only checkout; it is only as fresh as the last push + pull.
 
 ## Known gaps
 
-- **Nothing from the 2026-08-26 overhaul is pushed.** ~/.agents `main` is local-only
-  ahead of `origin/main` (as is infoex-api's `main` by one docs commit); the
-  reference checkout lags until push + pull.
 - **graphify's SKILL.md is still 41 KB** of upstream build machinery for a workflow
   that uses two commands; shrink-or-drop is an open decision.
-- **Three repos still track the dead cloud hook** (accounting-agent, infoex-api,
-  quickbooks-connector carry the scaffolded SessionStart hook + wiring). Harmless
-  locally (exit 0); in a cloud session it would now fail, since `cloud-setup.sh` no
-  longer exists.
 - **Nothing prunes the read surfaces.** `/recall` loads whole decision files
   (`~/Vault/decisions/infoex-api.md` is 74 KB) and the monthly `_traces-*.md` files
   grow all month (~15 KB/day when busy); `_sessions.log` is repo-only now but
@@ -70,7 +63,5 @@ is a reference-only checkout; it is only as fresh as the last push + pull.
 
 ## Next
 
-1. Push `~/.agents` main; pull the reference checkout and infoex-api's main.
-2. Decide graphify: shrink the skill to a query-first ~3 KB, or drop it.
-3. Strip the dead cloud hook from the three scaffolded repos.
-4. Decide the fate of `~/Vault-backup-2026-08-26` once the remote has earned trust.
+1. Decide graphify: shrink the skill to a query-first ~3 KB, or drop it.
+2. Decide the fate of `~/Vault-backup-2026-08-26` once the remote has earned trust.
