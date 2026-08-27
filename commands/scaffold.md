@@ -7,8 +7,7 @@ Scaffold is for repos I own. Before running it, settle ownership:
 
 WRITE/TRIAGE/READ means a guest repo (someone else's — I branch and PR): stop and use
 `repo-intake`'s guest mode instead. Every file scaffold lays down is a tracked-file
-change their owner has to review — and on a repo whose hooks directory is tracked
-(husky-style `core.hooksPath`), even the hook install would modify a tracked file.
+change their owner has to review.
 ADMIN/MAINTAIN, no remote, or no `gh`: it's mine (ask if genuinely unsure), continue.
 
 Run the scaffold script against the current project root:

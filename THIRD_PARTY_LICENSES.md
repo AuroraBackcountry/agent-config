@@ -1,16 +1,16 @@
 # Third-party licenses
 
-Components vendored into this repo, each under its upstream license (MIT unless the
-table says otherwise). Sources are tracked in `.skill-lock.json` where installed via
-`npx skills`; `skills/playwright-cli/` is generated verbatim by `playwright-cli install
---skills` from the `@playwright/cli` npm package and is vendored unmodified.
+Components vendored into this repo, each under its upstream license (MIT). The
+defuddle skill is a local fork of kepano's original; the graphify skill derives from
+upstream's docs. The playwright-cli skill is NOT vendored: `install.sh` regenerates
+it locally from the installed `@playwright/cli` package (gitignored), which carries
+its own Apache-2.0 license — this repo ships no Microsoft-authored bytes.
 
 | Component | Path | Upstream |
 |---|---|---|
 | defuddle | `skills/defuddle/` | [kepano/obsidian-skills](https://github.com/kepano/obsidian-skills) |
 | graphify (skill docs, from graphifyy 0.9.23) | `skills/graphify/` | [Graphify-Labs/graphify](https://github.com/Graphify-Labs/graphify) |
 | ponytail | `rules/ponytail.md` | [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) |
-| playwright-cli (skill docs, from @playwright/cli 0.1.18, Apache-2.0) | `skills/playwright-cli/` | [microsoft/playwright-cli](https://github.com/microsoft/playwright-cli) |
 
 ## kepano/obsidian-skills
 

@@ -11,12 +11,12 @@ canonical clone and the live install — every edit happens there**. `~/code/age
 is a reference-only checkout; it is only as fresh as the last push + pull.
 
 - **Rules.** `AGENTS.md` + `rules/ponytail.md` + `overlays/claude-code.md` are baked by
-  `sync.sh` into exactly one destination: `~/.claude/CLAUDE.md`. Baking survived the
-  2026-08-26 audit on its real merit (Cowork skips user-scope imports); the stale
-  rationale is corrected in the sync.sh header. Freshness has two mechanisms: the
-  post-commit hook (local commits) and a SessionStart `--check || sync` hook (heals
-  drift from ff-pulls — verified by injecting drift and watching it re-bake).
-  Codex support is deleted (no binary, zero sessions in 31 days; history has it).
+  `sync.sh` into exactly one destination: `~/.claude/CLAUDE.md`. Baked deliberately —
+  Cowork skips user-scope imports, so an import-based global would load nothing there.
+  Freshness has two mechanisms: the post-commit hook (local commits) and a SessionStart
+  check-then-sync hook (heals pulled drift; a failed heal logs to
+  `~/.cache/sync-heal.log`, and every overwrite leaves a `.pre-sync` safety copy).
+  There is no Codex support (history has it).
   Cursor is manual: `overlays/cursor.md` exists to paste, nothing generates a bundle.
 - **Skills.** Three authored (`repo-intake` — cut to a 7.4 KB kernel, `memory-checkpoint`,
   `standup`), one vendored-and-forked (`defuddle`, shrunk, install line corrected to
@@ -32,15 +32,18 @@ is a reference-only checkout; it is only as fresh as the last push + pull.
   git. `vault-daily.sh`: launchd agent at 17:00 commits and pushes `~/Vault` to the
   private remote (`AuroraBackcountry/vault`); one evidence line per run in
   `~/.cache/vault-daily.log`.
-- **Vault.** Git-versioned with an off-machine remote. History was rewritten
-  2026-08-26 to remove three guideops `.env` files before the first push;
-  `~/Vault/.gitignore` fences `*.env` out going forward. `.git` is packed (~2 MB,
-  from 84 MB of loose objects under the old per-session snapshot).
+- **Vault.** Git-versioned with an off-machine private remote. Its history contains
+  no env files (verified against every commit, including everything pushed);
+  `~/Vault/.gitignore` fences `*.env` out, and vault-daily refuses to run while an
+  env-named file is tracked. `.git` is packed (~2 MB).
 - **Graphify.** On-demand only, machine-wide: no post-commit hook anywhere, no graph
   in this repo, guideops' stale graph deleted. infoex-api, aurora-backcountry, and
   avalanche-search keep graphs that stay frozen until a manual `/graphify --update`.
-- **Checks.** `tests/session-end.test.sh` — 12 checks, including the non-repo
-  writes-nothing gate and never-commits-the-vault. Still the only test here.
+- **Checks.** `tests/session-end.test.sh` (worktree identity, non-repo
+  writes-nothing, concurrency, never-commits-the-vault) and
+  `tests/vault-daily.test.sh` (every exit logs, commit-failure reported, secrets
+  gate, quiet-day no-op; the push itself is deliberately untested). No counts here —
+  a number in prose that must track code is a drift generator; run them.
 
 ## Known gaps
 
@@ -61,3 +64,7 @@ is a reference-only checkout; it is only as fresh as the last push + pull.
 1. Fix the Time Machine destination (or pick another off-disk backup for
    `~/.claude/projects` and `~/.claude/settings.json`) — the last data with a
    single copy.
+
+**Standing rule:** the next change to this repo is triggered by an observed
+failure, not by another review pass. Review can find work here indefinitely;
+only breakage gets to order it.

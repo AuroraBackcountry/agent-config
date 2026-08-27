@@ -107,8 +107,8 @@ Unless you're in auto mode, show the diffs and get a nod before writing.
 
 While you're in the memory files, make sure they're still correct:
 - **Duplication:** if `CLAUDE.md` and `AGENTS.md` are full copies of each other, keep
-  `AGENTS.md` as the canonical (Codex and Cursor can't `@import`) and collapse `CLAUDE.md`
-  to a one-line `@AGENTS.md`. Edit one file, both stay in sync.
+  `AGENTS.md` as the canonical (the file other tools read natively) and collapse
+  `CLAUDE.md` to a one-line `@AGENTS.md`. Edit one file, both stay in sync.
 - **Corruption:** diff the two files. If one looks like a find-replace copy of the other
   (e.g. Claude<->Codex swaps, references to files that don't exist), verify each suspect token
   against the actual code and fix it. A memory that points at `Codex.ts` when the file is
