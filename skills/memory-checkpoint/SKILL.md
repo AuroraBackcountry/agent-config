@@ -70,13 +70,19 @@ Don't assume a layout. Find where THIS project keeps memory:
   `~/Vault/logs/<YYYY-MM-DD>-<project>.md`, decisions in `~/Vault/decisions/<project>.md`,
   and the project MOC (`~/Vault/projects/<repo>/README.md`) holds only pointers and a
   "Next" line. Update these.
-- **`AGENTS.md` "Current focus"** -- only if the project uses AGENTS.md as its status surface
-  (small projects with no STATUS.md).
+- **`AGENTS.md` "Current focus"** -- only if the project uses AGENTS.md as its status
+  surface (small projects with no STATUS.md), **and only when that file is repo context,
+  never a rules payload**. `~/.agents/AGENTS.md` is the source `sync.sh` bakes into every
+  tool's global rules file, so a "Current focus" written there loads into every session on
+  every repo. The GENERATED marker will not stop you: `sync.sh` stamps the destinations it
+  writes, never the source it reads. Check before writing -- a repo root holding `sync.sh`
+  and `overlays/` is agent-config, so write its `STATUS.md` instead.
 - **Locked / immutable** -- `MASTER_PLAN`, locked design specs, `GENERATED` files. Read for
   context; DO NOT rewrite. Only their as-built/status banners, and only if the doc invites it.
 
-If there's no vault and no status doc (a bare repo), say so, update `AGENTS.md`'s current focus
-plus a short note, and suggest `/scaffold` or `repo-intake` to set up real memory.
+If there's no vault and no status doc (a bare repo), say so, update `AGENTS.md`'s current
+focus plus a short note (subject to the payload guard above), and suggest `/scaffold` or
+`repo-intake` to set up real memory.
 
 ## Phase 3: Write the update
 
@@ -116,6 +122,9 @@ While you're in the memory files, make sure they're still correct:
   to present-tense state in place and demote any history to the changelog. A superseded-but-
   left-in-place banner IS drift -- reconcile it, don't stack a new one on top. Also re-derive
   counts/inventories (e.g. `N functions deployed`) from the code, not the previous banner.
+  Check the vault MOC too: it must hold pointers, never a copy of build state. A `Current
+  state` section there is drift by construction -- nothing re-edits it when the repo moves --
+  so replace it with a pointer to the status doc rather than refreshing it.
 
 Report what you reconciled. If nothing's off, say so and move on -- don't invent problems.
 
