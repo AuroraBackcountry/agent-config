@@ -54,6 +54,22 @@ for cmd in "$AGENTS_HOME"/commands/*.md; do
 done
 echo
 
+# playwright-cli skill: generated from the installed CLI, never vendored — the npm
+# package ships its own skill and `install --skills --global` copies it into
+# ~/.claude/skills (our symlink into skills/, where .gitignore hides it), so the
+# skill and the binary can never drift apart. No CLI installed = no skill, which is
+# right: the skill is useless without the binary.
+if command -v playwright-cli >/dev/null 2>&1; then
+  if playwright-cli install --skills --global >/dev/null 2>&1; then
+    echo "generated playwright-cli skill from the installed CLI"
+  else
+    echo "note: 'playwright-cli install --skills --global' failed; skill not generated"
+  fi
+else
+  echo "note: playwright-cli not on PATH; skill skipped (npm i -g @playwright/cli, then re-run)"
+fi
+echo
+
 # Machine-wide git ignore: personal agent files must stay invisible in EVERY repo,
 # including ones you don't own — the template .gitignore only lands in repos you
 # scaffold, and editing someone else's .gitignore costs them a review. The pattern
