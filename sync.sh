@@ -1,8 +1,14 @@
 #!/usr/bin/env bash
-# sync.sh: regenerate the global tool files from the canonical source.
-# The Claude global is BAKED (concatenated), not imported, because
-# @import is unreliable for home/absolute paths (and this home path has a space).
-# Per-repo CLAUDE.md still uses the reliable relative @AGENTS.md import.
+# sync.sh: regenerate the global Claude file from the canonical source.
+# The global is BAKED (concatenated), not @imported — a choice re-affirmed on
+# review 2026-08-26. The original rationale ("@import is unreliable for home
+# paths", "this home path has a space") is dead: the CLI documents @~/ imports
+# as supported, and this home path has no space. The live reason is Cowork
+# desktop, which skips user-scope external imports (and a symlinked
+# ~/.claude/CLAUDE.md entirely) — an import-based global would silently load
+# nothing there, while a baked flat file works on every surface. The post-commit
+# hook and `sync.sh --check` keep the bake from going stale.
+# Per-repo CLAUDE.md still uses the relative @AGENTS.md import.
 #
 # Shared always-on rules from rules/ (currently just the pinned ponytail snapshot)
 # are baked in between AGENTS.md and the tool overlay. Each global is built in a
