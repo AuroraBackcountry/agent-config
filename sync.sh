@@ -33,6 +33,7 @@ tmp=""
 trap '[ -n "$tmp" ] && rm -f "$tmp"' EXIT
 
 drift=0
+skipped=0
 bake() { # bake <overlay> <dest> <label>
   local overlay="$1" dest="$2" label="$3"
   mkdir -p "$(dirname "$dest")"
@@ -64,16 +65,22 @@ bake() { # bake <overlay> <dest> <label>
           [Yy]*) ;;
           *)
             echo "skipped $label — kept your $dest" >&2
+            skipped=1
             rm -f "$tmp"; tmp=""
             return
             ;;
         esac
       else
         echo "warning: $dest lacks the GENERATED marker; not overwriting. Run ./sync.sh in a terminal to confirm." >&2
+        skipped=1
         rm -f "$tmp"; tmp=""
         return
       fi
     fi
+    # Safety copy before the overwrite: an append to the generated file (e.g. a
+    # '#' user-memory save) keeps the marker, so the overwrite below is by
+    # design — the copy makes a clobbered append recoverable instead of gone.
+    if [ -f "$dest" ]; then cp "$dest" "$dest.pre-sync" 2>/dev/null || true; fi
     mv "$tmp" "$dest"
     echo "wrote $dest"
   fi
@@ -86,3 +93,8 @@ if [ "$CHECK" -eq 1 ]; then
   [ "$drift" -eq 0 ] && echo "globals match canonical sources"
   exit "$drift"
 fi
+
+# A skipped bake exits nonzero so callers (the SessionStart self-heal) can see
+# that the one unhealable state — a markerless destination — actually occurred,
+# instead of reporting success over a heal that never happened.
+exit "$skipped"

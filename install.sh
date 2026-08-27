@@ -138,7 +138,7 @@ echo
 # of commits authored elsewhere (cloud session, another machine, web edit) leaves
 # ~/.claude/CLAUDE.md stale until the next local commit. --check is a cheap diff;
 # sync.sh writes only on drift, and its non-tty marker guard still applies.
-sync_start_cmd="bash \"$AGENTS_HOME/sync.sh\" --check >/dev/null 2>&1 || bash \"$AGENTS_HOME/sync.sh\" >/dev/null 2>&1"
+sync_start_cmd="bash \"$AGENTS_HOME/sync.sh\" --check >/dev/null 2>&1 || bash \"$AGENTS_HOME/sync.sh\" >/dev/null 2>&1 || printf '%s self-heal failed — run sync.sh in a terminal\n' \"\$(date '+%F %T')\" >> \"\$HOME/.cache/sync-heal.log\""
 if [ -f "$settings" ] && command -v jq >/dev/null 2>&1; then
   if jq -e '.hooks.SessionStart[]?.hooks[]?.args[]? | select(contains("sync.sh"))' "$settings" >/dev/null 2>&1; then
     echo "SessionStart sync-check already wired in $settings"
@@ -215,8 +215,9 @@ if hooksdir="$(git -C "$AGENTS_HOME" rev-parse --path-format=absolute --git-path
 fi
 echo
 
-# Generate the global Claude file from canonical.
-bash "$AGENTS_HOME/sync.sh"
+# Generate the global Claude file from canonical. sync.sh exits nonzero when a
+# bake was skipped (markerless destination) — surface that without aborting.
+bash "$AGENTS_HOME/sync.sh" || echo "note: a bake was skipped — see the warning above"
 
 echo
 echo "Done."
