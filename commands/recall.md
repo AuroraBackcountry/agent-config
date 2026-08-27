@@ -12,6 +12,7 @@ Rehydrate context for the current project from my vault (default ~/Vault, or $VA
    append-only and grows forever; only recent decisions are load-bearing, so dig
    older only when something points there) and ~/Vault/projects/<project>/README.md
    if it exists. If no per-project log exists, check the latest matching entries in
-   ~/Vault/logs/_traces-<YYYY-MM>.md (the safety net for sessions that skipped /save).
+   ~/Vault/logs/_traces-<YYYY-MM>.md (the safety net for REPO sessions that skipped
+   /save; non-repo sessions leave no automatic record -- /save is their only memory).
 4. Summarize in 5-8 lines: where we left off, open threads, and decisions still in force.
 5. Do not start work yet. Ask me what to pick up.

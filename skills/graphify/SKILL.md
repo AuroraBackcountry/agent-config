@@ -28,9 +28,13 @@ behavior claim in source before changing code.
 - **Code-only corpus** (the usual case): `graphify update .` — pure AST, zero LLM
   tokens. Same command refreshes an existing graph after changes.
 - **Mixed corpus** (docs/papers/images worth semantic extraction): only for large
-  corpora. Load `references/extraction-spec.md` and follow it VERBATIM as the
-  subagent extraction prompt — its node-ID format must byte-match the AST
-  extractor's output, or the merge produces orphan duplicate nodes.
+  corpora. `references/extraction-spec.md` is the VERBATIM subagent extraction
+  prompt — its node-ID format must byte-match the AST extractor's output, or the
+  merge produces orphan duplicate nodes. The orchestration around it (file
+  chunking, chunk-on-disk paths, merge steps) was deleted with the 2026-08 shrink:
+  before a mixed build, read the pre-shrink pipeline via
+  `git -C ~/.agents show f0249ec^:skills/graphify/SKILL.md` and follow its Steps
+  4-9 with the spec as the prompt.
 - Outputs land in `graphify-out/` (`graph.json`, `GRAPH_REPORT.md`, `graph.html`),
   kept out of every repo's `git status` by the machine-wide ignore
   (`~/.config/git/ignore`).
