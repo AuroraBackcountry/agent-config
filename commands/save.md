@@ -5,8 +5,8 @@ The session-end entry point: one take-stock, both surfaces (STATUS.md = state,
 vault = history). Mid-session capture before /compact and memory-file repair are
 memory-checkpoint's job, not this command's.
 
-1. Determine the project name with the global project-key rule (main repo directory name via
-   `git rev-parse --git-common-dir`; folder name only outside a repo).
+1. Determine the project name with the global project-key rule (defined once, in the
+   global rules' "Memory and source of truth" section -- not restated here).
 2. Take stock once against reality: `git status`, `git diff --stat`, `git log --oneline -15`.
    Never record a claim you didn't verify.
 3. Update the repo's STATUS.md (repos I own only -- in a guest repo, skip: state lives in

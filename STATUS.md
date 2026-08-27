@@ -44,14 +44,13 @@ is a reference-only checkout; it is only as fresh as the last push + pull.
 
 ## Known gaps
 
-- **Nothing prunes the read surfaces.** `/recall` loads whole decision files
-  (`~/Vault/decisions/infoex-api.md` is 74 KB) and the monthly `_traces-*.md` files
-  grow all month (~15 KB/day when busy); `_sessions.log` is repo-only now but
-  unbounded.
-- **Convention prose is still restated** in places: the project-key derivation
-  appears inline in save.md and recall.md beside their pointer to the global rule;
-  state-not-lifecycle text lives in AGENTS.md, memory-checkpoint, and both STATUS
-  banners.
+- **Nothing prunes the write surfaces.** Decision files and the monthly
+  `_traces-*.md` grow without bound (~15 KB/day when busy) and `_sessions.log` is
+  repo-only now but unbounded — though `/recall` now reads only the decisions tail,
+  so growth costs disk, not context.
+- **State-not-lifecycle prose still lives in three places** (AGENTS.md,
+  memory-checkpoint, the STATUS banners); the project-key rule is now stated once,
+  in AGENTS.md, with save/recall pointing at it.
 - **Backup coverage is the vault remote, nothing else.** Time Machine's destination
   still fails to mount; `~/.claude/projects` (~780 MB of transcripts) and
   `~/.claude/settings.json` have no off-disk copy.
