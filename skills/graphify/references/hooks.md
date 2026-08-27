@@ -1,9 +1,12 @@
 # graphify reference: commit hook and native CLAUDE.md integration
 
-> **Local deviation:** this setup installs the central `~/.agents/hooks/graphify-post-commit.sh`
-> via `scaffold.sh` (with dedup, CPU-load, and mid-rebase guards). Do NOT also run
-> `graphify hook install` — a scaffolded repo would end up with both hook lines and
-> double rebuilds per commit. The upstream instructions below are kept for reference.
+> **Local deviation (2026-08-26):** auto-refresh is deliberately REMOVED from this setup,
+> machine-wide. AGENTS.md's rule is that the graph is an on-demand map ("nothing builds it
+> by default"), and a post-commit hook made every graph self-sustaining once built — 351
+> background rebuilds against 7 manual queries in its lifetime. Rebuild by hand with
+> `/graphify --update` when a fresh map is wanted. Do NOT run `graphify hook install` or
+> `graphify claude install` unless explicitly asked — both re-create always-on wiring.
+> The upstream instructions below are kept for reference only.
 
 Load this when the user asked to install the post-commit hook or wire graphify into a project's CLAUDE.md.
 
