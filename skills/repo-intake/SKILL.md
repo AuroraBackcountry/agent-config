@@ -1,228 +1,100 @@
 ---
 name: repo-intake
 description: >
-  Get a repo ready to work in, doing the right thing based on what's already there.
-  For an unfamiliar repo: asks what you're here to do, maps the code (reading it;
-  a Graphify graph only when it's too large to map by reading), writes the canonical
-  AGENTS.md, records it in your Obsidian vault, and proposes a first task. For a repo
-  that's already documented but not yet wired into your memory layer (a real
-  AGENTS.md/MASTER_PLAN but no vault space): it just wires that in and leaves the
-  existing docs alone.
-
-  Use whenever you pick up a codebase and want it set up: "get me set up on this repo",
-  "onboard me", "I cloned/forked this", "map this repo", "set up context here", "wire
-  this into the vault", "create the AGENTS.md". Also trigger proactively when a repo
-  has no AGENTS.md/CLAUDE.md/.cursorrules and you start real work — but check ownership
-  first: on a repo the user doesn't own, intake is vault-first and writes nothing into
-  the repo's tracked files.
-
-  NOT for refreshing already-current memory (that's memory-checkpoint) or greenfield
-  scaffolding (that's /scaffold). If a repo is already documented AND wired, nothing to do.
+  Get a picked-up repo ready to work in. Unfamiliar repo: ask intent, map it by
+  reading, write the canonical AGENTS.md, wire the vault, propose a first task.
+  Already-documented repo with no vault space: wire-only — connect it and leave the
+  docs alone. Use when picking up a codebase: "onboard me", "get me set up on this
+  repo", "I cloned/forked this", "map this repo", "wire this into the vault" — or
+  proactively when a repo has no AGENTS.md/CLAUDE.md and real work starts. Check
+  ownership first: on a repo the user doesn't own, intake is vault-first and writes
+  nothing into tracked files. NOT memory refresh (that's memory-checkpoint) or
+  greenfield scaffolding (/scaffold); documented AND wired = nothing to do.
 ---
 
 # Repo Intake
 
-You've just picked up a codebase -- handed to you, forked, or cloned -- and you need
-to go from zero to productively working in it. This skill takes you there in one pass:
-understand the repo, write it down where every tool will see it, record it in the
-vault, and line up a first task. Work the phases in order. The discipline is what
-prevents premature, wrong-headed advice on code you don't yet understand.
+Zero to productive on a codebase you just picked up: understand it, write it down
+where every tool sees it, wire the vault, line up a first task. The repo's canonical
+context file is `AGENTS.md` at the root; `CLAUDE.md` is a one-line `@AGENTS.md`
+import (other tools read `AGENTS.md` natively). It captures only what's true about
+THIS codebase — the global rules already load every session; never restate them.
 
-**How context and memory are organized here.**
-- The repo's canonical context file is `AGENTS.md` at the root. `CLAUDE.md` is a
-  one-line `@AGENTS.md` import, and Codex and Cursor read `AGENTS.md` too. One real
-  file, not three.
-- The user's *global* rules (how they work, their style) live in `~/.agents/AGENTS.md`
-  and load every session, so this repo's `AGENTS.md` captures only what's true about
-  THIS codebase and never restates the global rules.
-- Durable project memory lives in the Obsidian vault at `~/Vault/projects/<repo>/`
-  (`VAULT_DIR` overrides `~/Vault`).
-- Tools to lean on: reading the source is the default map. The Graphify code graph
-  (`/graphify`) is an on-demand tool for repos too large or tangled to map by
-  reading -- not a default step. Vault notes are plain markdown -- write them
-  directly (`[[wikilinks]]` for note links).
+## Locate, own, route
 
-## Phase 0: Locate the code
-
-This skill often runs from a bare trigger -- the user may say almost nothing, just invoke
-it while sitting in a repo, or drop a repo URL into an empty folder. Don't wait for a
-detailed brief; work out the situation yourself.
-
-- **Inside a populated git repo** (files present, `git rev-parse` succeeds): that's the
-  target. Continue.
-- **Empty or near-empty folder plus a repo URL** (pasted now or earlier in the conversation):
-  clone it, then continue.
+- **Locate:** inside a populated repo, that's the target. Given a URL and an empty
+  folder, clone it. Neither: ask — one question.
+- **Ownership decides write targets:**
   ```bash
-  git clone <url> .      # into the empty folder; use a subfolder if it isn't empty
+  gh repo view --json viewerPermission --jq .viewerPermission
   ```
-- **Empty folder, no URL:** ask for the repo URL or a local path -- one question, then continue.
-- **A local path was given:** treat that as the target and continue.
+  ADMIN/MAINTAIN, or no remote at all = the user's repo; writes go to the repo.
+  WRITE/TRIAGE/READ = **guest repo**; every write is vault-first (section below).
+  No `gh` or it errors: ask "yours or someone else's?" — one question.
+- **Mode:** no real context file (or only a scaffold stub) → **full onboard**. A
+  real, filled-in AGENTS.md/CLAUDE.md/MASTER_PLAN system but no
+  `~/Vault/projects/<repo>/` → **wire-only**; never re-onboard or rewrite real docs
+  — they outrank anything you'd write (redo only on explicit ask, renaming the old
+  to `AGENTS.md.bak` first). Documented AND wired → nothing to do; stale memory is
+  memory-checkpoint's job.
 
-With the code in place, settle ownership, then pick the mode below.
+## Full onboard
 
-## Whose repo is this?
-
-The write target depends on ownership, so check before routing:
-
-```bash
-gh repo view --json viewerPermission --jq .viewerPermission   # run inside the repo
-```
-
-- **ADMIN or MAINTAIN** — or no remote at all (a local-only repo is the user's):
-  normal intake, writes go to the repo as described below.
-- **WRITE, TRIAGE, or READ** — a **guest repo**: the user ships branches and PRs but
-  doesn't own the tree. Run the same phases, but every write is vault-first — see
-  "Guest repo: vault-first writes" before Phase 5.
-- **No `gh`, or the command errors** — ask: "Your repo, or someone else's?" One question.
-
-## Which mode: onboard, wire, or nothing
-
-Check what memory already exists, then route:
-- **No real context file** (no AGENTS.md/CLAUDE.md/.cursorrules, or only a `/scaffold` stub) ->
-  **full onboard**: do Phases 1-7 below.
-- **A real, filled-in context file already** (AGENTS.md, CLAUDE.md, a MASTER_PLAN/STATUS system)
-  but **not wired into the memory layer** (no `~/Vault/projects/<repo>/`) ->
-  **wire-only**: skip the onboarding phases and jump to "Wire an already-documented repo" near the
-  end. Do NOT re-onboard or rewrite the existing docs; they're the source of truth and probably
-  better than anything you'd write.
-- **Already documented AND wired** (context file + vault space): nothing to onboard. If the
-  memory looks stale, hand off to `memory-checkpoint`; otherwise just say it's set.
-
-## Phase 1: Capture intent (ask first)
-
-Before mapping anything, get the "why." Ask one or two short questions and wait:
-- "What is this repo, and how did it come to you -- handed off, forked, cloned?"
-- "What are you trying to do here -- a feature, a fix, a review, or just understand it?"
-
-This frames the whole intake: an "add a feature" intent reads a repo differently than a
-"review it for security" intent. Keep it to a couple of questions, don't interrogate. If
-the user already stated their goal, reflect it back in one line and go straight to Phase 2.
-
-## Phase 2: Map the territory
-
-Silently do the following. Don't ask permission or narrate each step -- do the work and
-report findings.
-
-### 2.1 Map by reading -- graph only if reading won't cover it
-
-Reading the source is the default map for every repo. Most repos are small enough to
-orient in by reading the foundational files (2.2) and structure (2.3) directly --
-do that, and skip the graph entirely.
-
-Build a Graphify graph **only** when the repo is genuinely too large or tangled to map
-by reading -- sprawling cross-module coupling, hundreds of files with no clear entry
-points -- or when the user asks for one. If you do:
-
-- First check whether this repo *tracks* its own `graphify-out/`
-  (`git ls-files graphify-out/` returns anything) -- then the graph is the team's
-  committed artifact: read theirs, don't rebuild; a rebuild would modify their
-  tracked files.
-- Otherwise run `/graphify .`. That writes `graphify-out/` (`graph.json`,
-  `GRAPH_REPORT.md`, `graph.html`) — kept out of `git status` everywhere by the
-  machine-wide ignore (`~/.config/git/ignore`, seeded by `install.sh` and
-  `cloud-setup.sh`), which matters because a repo with its own `.gitignore` never
-  receives the template's ignore lines.
-- Read `graphify-out/GRAPH_REPORT.md` for the structural overview, and use
-  `graphify query "..."` or `graphify explain "..."` to trace specific connections
-  instead of opening every file.
-
-If the repo would warrant a graph but Graphify isn't installed, say so, map by
-reading anyway, and note that the graph would have helped.
-
-### 2.2 Read foundational files
-- README(s); package manifest (package.json, pyproject.toml, Cargo.toml, go.mod, etc.)
-- Existing memory/context files: AGENTS.md, CLAUDE.md, .cursorrules,
-  .github/copilot-instructions.md, CONTRIBUTING.md, CONVENTIONS.md
-- docs/ (architecture, ADRs, onboarding guides)
-
-### 2.3 Recent history, structure, and stack
-```bash
-git log --oneline -30
-git log --stat -10
-```
-Note where activity concentrates. List the top-level structure: entry points, core
-modules, tests, config, migrations. Pin the stack: languages and versions, frameworks,
-datastores, external services, build tooling, CI/CD.
-
-### 2.4 Existing memory files
-Read any that exist. Note what they cover, whether they look current or stale (against
-recent git activity), and whether they *genuinely* conflict. NOT a conflict: a `CLAUDE.md`
-whose whole content is `@AGENTS.md` is the standard import, not a competing source --
-treat `AGENTS.md` as the real file. Skip any file with a "GENERATED by ~/.agents" header;
-never edit it.
-
-### Phase 2 output
-Report a tight summary, oriented around the Phase 1 intent:
-- **Project:** one line. **Stack.** **Structure.** **Recent activity.**
-- **Existing context files:** what exists, note anything stale or contradictory.
-- **Gaps:** what you can't infer from the code alone.
-
-Keep it tight. The user knows their repo -- they're checking whether you understood it.
-
-## Phase 3: Targeted questions
-
-Ask 3-7 specific questions, grounded in what you saw and pointed at the intent. Good ones
-reference the code:
-- "There are two auth patterns -- JWT in `api/`, sessions in `web/`. Intentional or mid-migration?"
-- "CI runs tests but I see no deploy step. Where and how does this ship?"
-
-Skip generic questions (project goals, coding style -- style already lives in the global
-rules). Always ask these two unless already answered:
-1. The one-sentence purpose and who uses it (if Phase 1 didn't cover it).
-2. What's rough, risky, or off-limits that I should know before changing anything?
-
-If files genuinely conflict, ask which wins. Wait for answers before proceeding; don't
-guess.
-
-## Phase 4: Reflect back
-
-Synthesize everything into a short summary:
-- **What this codebase does** (in the user's terms)
-- **Architecture in broad strokes** (how the pieces connect)
-- **Conventions and constraints** (explicit and implicit)
-- **Current state** (working, rough, where effort is focused)
-- **Things you'd flag** (specific, not vague "could be improved")
-
-Call out any real contradictions so they get resolved before they're written down. End
-with: **"Is this accurate? Correct anything before I write it down."** Don't proceed until
-the user confirms or corrects.
+1. **Intent first.** One or two questions: what is this repo, and what are you here
+   to do? If the goal was already stated, reflect it back in a line and move on.
+2. **Map by reading**: README, manifests, existing context files, docs/,
+   `git log --oneline -30`, structure, stack. Reading is the default map;
+   `/graphify` only when the repo is genuinely too large or tangled to map by
+   reading — and if the repo TRACKS its own `graphify-out/`, read the team's graph,
+   never rebuild over it. Skip any file with a "GENERATED by ~/.agents" header.
+3. **Report and confirm**: a tight summary (project, stack, structure, activity,
+   gaps), then 3-7 specific questions grounded in the code — always including
+   "what's rough, risky, or off-limits before I change anything?" Reflect the full
+   picture back and get a confirmation before writing anything down.
+4. **Write `AGENTS.md`** at the repo root (guest repo: to the vault instead), using
+   the template below. Add the one-line `CLAUDE.md` import if it's missing, or run
+   `/scaffold` for the full skeleton.
+5. **Wire the vault**: `~/Vault/projects/<repo>/README.md` is a MOC that POINTS at
+   the repo's docs — an index, never a copy: 5-10 line summary, pointer to
+   AGENTS.md, open questions, a Next line. Seed intake-surfaced decisions into
+   `~/Vault/decisions/<repo>.md`; the MOC keeps only a wikilink to them.
+6. **Propose the first task**, tied to the intent: the task in a line or two, the
+   2-3 files it touches, any risk to resolve first. Record it under Next in the
+   MOC; hand off to a planning skill if it's big. The job is removing "where do I
+   even start" friction, not planning the project.
 
 ## Guest repo: vault-first writes
 
-Phases 1-4 are read-only -- run them unchanged. From Phase 5 on, the tracked files belong
-to the repo's owners, so your context lives in the vault and *links* into the repo:
+Reading is unchanged; writes move. The tracked files belong to the repo's owners:
 
-- Write the same canonical context file, but at
-  `~/Vault/projects/<repo>/repo-local/AGENTS.md`. Link it into the repo as
-  `CLAUDE.local.md` (auto-loaded by Claude Code, ignored machine-wide). If another
-  tool needs the tracked names (`AGENTS.md`/`CLAUDE.md` symlinks at the root), add
-  those names to the repo's `.git/info/exclude` -- local-only, invisible to the
-  owners. A re-clone or `git clean -fdx` kills the symlink but never the vault copy;
-  `standup` step 1 restores it.
-- Do NOT run `/scaffold`, write `STATUS.md`, or edit their `.gitignore` -- each is a
-  tracked-file change someone else has to review. Build truth lives in the team's own
-  surfaces (their docs, PRs, CI); your personal state goes in the vault MOC.
-- `repo-local/` is also the home for the repo's local `.env` files -- they survive
-  re-clones and branch switches, and the vault snapshot versions them. The vault
-  never leaves this machine; if it ever grows a remote, sweep for secrets first.
-- The code graph is fine: `graphify-out/` is ignored machine-wide, so it never shows
-  in their `git status`. The post-commit refresh hook is optional -- it's local-only
-  (`.git/hooks/`) either way.
-- Phase 6 (vault) and Phase 7 (first task) run unchanged.
+- The canonical context file goes to `~/Vault/projects/<repo>/repo-local/AGENTS.md`,
+  linked into the repo as `CLAUDE.local.md` (auto-loaded by Claude Code, ignored
+  machine-wide). If a tool needs the tracked names, symlink `AGENTS.md`/`CLAUDE.md`
+  at the root and add those names to the repo's `.git/info/exclude` — local-only,
+  invisible to the owners. A re-clone or `git clean -fdx` kills the links, never
+  the vault copy; `standup` step 1 restores them.
+- Never `/scaffold`, never write `STATUS.md`, never edit their `.gitignore` — each
+  is a tracked-file change someone else has to review. Build truth lives in the
+  team's own surfaces (docs, PRs, CI); your state goes in the vault MOC.
+- `repo-local/` also holds the repo's local `.env` files: they survive re-clones
+  and branch switches, but they are NOT in vault git — the vault pushes to a
+  private remote, and its `.gitignore` fences `*.env` out of history.
 
-## Phase 5: Write the canonical AGENTS.md
+## Wire-only mode
 
-**Guest repo: skip the repo root** -- write to the vault instead, per "Guest repo:
-vault-first writes" above. The structure below still applies; only the destination moves.
+1. Create the vault project space: a MOC pointing at the repo's own docs
+   (AGENTS.md, MASTER_PLAN, STATUS, ARCHITECTURE) — an index, not a re-summary.
+   Open questions; a Next line only if the plan makes the next step obvious.
+2. **Quick drift check:** run memory-checkpoint's Phase 4 doctor pass, guest-repo
+   report-only rule included — that skill holds the ONLY copy of the pass. (A
+   summary used to live here and silently fell behind the real one; don't
+   re-inline it.)
+3. Report what you wired. The repo is in the memory layer without a re-onboarding.
 
-Write `AGENTS.md` at the repo root -- the file every tool reads.
-- **Scaffolded repo** (stub `AGENTS.md` plus a `CLAUDE.md` that says `@AGENTS.md`): fill in
-  the stub, leave `CLAUDE.md` as the import.
-- **Not scaffolded:** write `AGENTS.md`, then either run `/scaffold` for the full structure
-  or add a one-line `CLAUDE.md` containing `@AGENTS.md` so Claude Code picks it up too.
+## The AGENTS.md template
 
-This is repo-level context layered on the user's global rules -- don't restate global
-preferences. Skip sections that would just restate the README. Use this structure:
+Repo-level context layered on the global rules — skip sections that would restate
+the README, and never restate global preferences.
 
 ```markdown
 # [Project name]
@@ -253,7 +125,7 @@ dependencies. Decisions with non-obvious context behind them.
 - Linter/formatter commands
 
 ## Current focus
-What the user is working on now (from Phase 1). Vague enough to stay true for weeks.
+What the user is working on now (from intent). Vague enough to stay true for weeks.
 
 ## How to work in this repo
 - Fix what's asked. If a bigger structural issue is in the blast radius, name it and ask
@@ -263,72 +135,13 @@ What the user is working on now (from Phase 1). Vague enough to stay true for we
 - Read before guessing. If unsure a file/function exists or behaves a certain way, read it.
 ```
 
-Show the full file, take corrections, then write it (and the one-line `CLAUDE.md` import if
-it wasn't already there).
-
-## Phase 6: Wire project memory into the vault
-
-Record the project so it survives across sessions. Create `~/Vault/projects/<repo>/` and
-write a project MOC (map of content) at `README.md` with:
-- A 5-10 line summary of what the repo is and the user's current goal.
-- A pointer to the repo's `AGENTS.md` (the canonical context) and, if built, the key
-  modules from `graphify-out/GRAPH_REPORT.md`.
-- An **Open questions** section (anything unresolved from Phase 3).
-- A **Next** section (filled in Phase 7).
-
-Seed any architectural decisions surfaced during intake into
-`~/Vault/decisions/<repo>.md` (date, decision, rationale) -- the one surface `/save`
-appends to and `/recall` reads -- and keep only a wikilink pointer to it in the MOC.
-Decisions never live in the MOC itself; it's an index, not a copy.
-
-Write the vault markdown directly (`[[wikilinks]]` for note links) -- the vault is a
-folder of markdown, so writing files IS updating it. If you built a graph, keep it in
-the repo (`graphify-out/`, ignored machine-wide); the vault holds the human-readable
-memory.
-
-## Phase 7: Propose the first task
-
-Now that you understand both the repo and the intent, propose a concrete starting point --
-one first task or phase, not a whole project plan:
-- State the first task in a line or two, tied directly to the user's intent.
-- Name the 2-3 files or areas it will touch (from your read, or the graph if you built one).
-- Flag any risk or unknown to resolve before starting.
-
-Record it under **Next** in `~/Vault/projects/<repo>/README.md`. Then ask whether they want
-to start it now, or -- if it's big enough to warrant a real plan -- hand off to a planning
-skill (superpowers' brainstorming or writing-plans). Don't over-plan here; the job is to
-remove the "where do I even start" friction.
-
-## Wire an already-documented repo (wire-only mode)
-
-The repo already explains itself (a real AGENTS.md, maybe a MASTER_PLAN/STATUS system). Don't
-touch that -- it's the source of truth and better than anything you'd write. Just connect it to
-the memory layer:
-
-1. **Create the vault project space** at `~/Vault/projects/<repo>/` with a MOC that *points at*
-   the repo's own docs (AGENTS.md, MASTER_PLAN, STATUS, ARCHITECTURE) -- an index, not a
-   re-summary. Never duplicate the north star. List the key modules (from your read, or from a
-   graph if the repo is large enough to warrant one -- same bar as Phase 2.1), list any open
-   questions, and add a "Next" line only if the plan makes the next step obvious.
-2. **Quick drift check:** run memory-checkpoint's Phase 4 doctor pass, guest-repo
-   report-only rule included -- that skill holds the ONLY copy of the pass. (A summary
-   used to live here and silently fell behind the real one; don't re-inline it.)
-3. Report what you wired (vault MOC created, graph if you built one, anything reconciled). The repo is now in
-   the memory layer without a re-onboarding.
+Show the full file, take corrections, then write it.
 
 ## Edge cases
 
-- **Monorepo:** multiple distinct projects (packages/, apps/, services/) -- ask whether they
-  want one top-level `AGENTS.md` or per-project files; keep the top-level one broad.
-- **Empty or near-empty repo:** skip the mapping, lean on the Phase 1 intent and Phase 3
-  questions, and flag that the file is inference-heavy.
-- **"Just set it up":** run Phase 2 silently, write the best `AGENTS.md` from the code, flag
-  guessed sections, still create the vault space and propose a first task.
-- **Already has a filled-in AGENTS.md:** don't re-onboard. If it's not wired into the memory
-  layer yet, use wire-only mode above (vault space, leave the docs alone). A scaffolded stub
-  (just template placeholders) doesn't count as filled in -- do a full onboard to fill it. Only
-  redo a full onboard over a real file if the user explicitly asks, renaming the old to
-  `AGENTS.md.bak` first.
-- **Tools missing:** if a repo is big enough that you'd have built a graph but Graphify
-  isn't installed, say so and map by reading -- the intake still works, just with more
-  reading.
+- **Monorepo:** ask — one top-level `AGENTS.md` or per-project files; keep the top
+  one broad.
+- **Empty or near-empty repo:** skip the mapping, lean on intent, flag the written
+  file as inference-heavy.
+- **"Just set it up":** map silently, write the best `AGENTS.md` the code supports,
+  flag guessed sections, still wire the vault and propose a first task.
