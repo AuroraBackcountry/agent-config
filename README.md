@@ -66,7 +66,7 @@ Optional — each degrades gracefully if absent:
   `~/.claude/settings.json`; without it you get the JSON to paste by hand.
 - **GitHub CLI (`gh`)** — powers the `standup` skill and the ownership check in
   `repo-intake`'s guest-repo mode; without it those fall back to asking you.
-- **Node** — only for updating vendored skills via [`npx skills`](https://github.com/vercel-labs/skills).
+- **Node** — for the `npm i -g` CLIs some skills drive (`@playwright/cli`, `defuddle-cli`).
 - **Obsidian** — optional viewer for the vault. The vault is just markdown folders.
 
 Platform: macOS and Linux (the vault-backup launchd agent is macOS-only; use cron on

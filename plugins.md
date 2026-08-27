@@ -22,7 +22,10 @@ with a frontend; never in guest repos — it writes PRODUCT.md/DESIGN.md at root
 (Upstash Context7: version-specific library docs. Upstash's own plugin, not the
 thinner `context7@claude-plugins-official` mirror — same hosted endpoint, but it
 adds the auto-trigger skill, a `docs-researcher` subagent that keeps doc dumps out
-of the main context, and `/context7:docs`. ~149 tok always-on.
+of the main context, and `/context7:docs`. Always-on cost measured 2026-08-26:
+1,172 B ≈ 317 tok derived (skill frontmatter 298 + MCP server instructions 637 +
+command frontmatter 84 + agent frontmatter 153) — roughly double the ~149 tok the
+plugin's own docs claim.
 
 No local process: it's Context7's hosted MCP server over HTTP, so queries leave the
 machine. Public library docs only, never anything private. Works unauthenticated;
