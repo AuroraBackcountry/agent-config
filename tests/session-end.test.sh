@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
-# One runnable check for hooks/session-end.sh — the three things that were actually
-# broken: worktree project identity, non-repo trace noise, and concurrent-append
-# interleaving. No framework, no fixtures: run it, non-zero exit means a regression.
+# One runnable check for hooks/session-end.sh — the things that were actually
+# broken: worktree project identity, non-repo noise (58% of breadcrumbs were
+# home-directory sessions before the gate), concurrent-append interleaving, and
+# the per-session vault git snapshot (moved to vault-daily.sh after it grew
+# ~/Vault/.git to 84 MB in a month). No framework, no fixtures: run it, non-zero
+# exit means a regression.
 #
 #   bash tests/session-end.test.sh
 set -uo pipefail
@@ -37,14 +40,15 @@ check "trace header names the repo"      "$(count ' myproject (branch' "$(traces
 check "worktree name is not the project" "$(count ' loving-swirles-231c69 (branch' "$(traces_of "$v")")" 0
 check "breadcrumb names the repo"        "$(count '| myproject | ' "$v/logs/_sessions.log")" 1
 
-echo "2. a session outside a repo leaves a breadcrumb but no trace"
+echo "2. a session outside a repo writes nothing at all"
 v="$tmp/v2"; notrepo="$tmp/not-a-repo-xyz"; mkdir -p "$notrepo"
 if git -C "$notrepo" rev-parse --git-dir >/dev/null 2>&1; then
   fail "precondition: \$TMPDIR is inside a git repo, cannot test the non-repo path"
 else
   run "$v" "$notrepo"
-  check "no trace entry"        "$(count 'not-a-repo-xyz' "$(traces_of "$v")")" 0
-  check "breadcrumb still kept" "$(count 'not-a-repo-xyz' "$v/logs/_sessions.log")" 1
+  check "no trace entry"       "$(count 'not-a-repo-xyz' "$(traces_of "$v")")" 0
+  check "no breadcrumb either" "$(count 'not-a-repo-xyz' "$v/logs/_sessions.log")" 0
+  check "no vault dir created" "$([ -e "$v" ] && echo yes || echo no)" no
 fi
 
 echo "3. concurrent session ends do not splice each other's fields"
@@ -62,6 +66,15 @@ check "no entry has a spliced field" "$(awk '
   /^- transcript: / { r++ }
   END               { if (h && (c!=1 || e!=1 || r!=1)) bad++; print bad+0 }
 ' "$t")" 0
+
+echo "4. the hook never commits the vault (vault-daily.sh owns that now)"
+v="$tmp/v4"; mkdir -p "$v"
+git -C "$v" init -q
+git -C "$v" -c user.email=t@example.com -c user.name=t commit -q --allow-empty -m init
+run "$v" "$repo"
+check "log files written"        "$(count '| myproject | ' "$v/logs/_sessions.log")" 1
+check "but no commit made"       "$(git -C "$v" rev-list --count HEAD)" 1
+check "logs left uncommitted"    "$([ -n "$(git -C "$v" status --porcelain)" ] && echo dirty || echo clean)" dirty
 
 echo
 if [ "$fails" -eq 0 ]; then echo "session-end.sh: all checks passed"; else echo "session-end.sh: $fails check(s) failed"; fi

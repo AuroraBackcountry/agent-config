@@ -16,7 +16,7 @@ layers, each answering a different question:
 | Layer | Question | Lives in |
 |---|---|---|
 | **Rules** | How should the agent behave? | `AGENTS.md` + per-tool overlays, baked into each tool's global config by `sync.sh` |
-| **Knowledge** | What was decided, and why? | A local vault (`~/Vault`) — plain markdown folders under git (the SessionEnd hook snapshots it each session); Obsidian is a nice viewer, not a requirement |
+| **Knowledge** | What was decided, and why? | A local vault (`~/Vault`) — plain markdown folders under git, committed and pushed to a private remote once a day by `hooks/vault-daily.sh`; Obsidian is a nice viewer, not a requirement |
 | **Structure** | How does the code connect? | The current source, read live. For large or unfamiliar repos, an optional derived code graph (`graphify-out/`, gitignored), built on demand and kept fresh by a post-commit hook once built |
 | **History** | What actually happened? | git — the immutable record |
 
