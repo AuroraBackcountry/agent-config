@@ -310,11 +310,9 @@ the memory layer:
    re-summary. Never duplicate the north star. List the key modules (from your read, or from a
    graph if the repo is large enough to warrant one -- same bar as Phase 2.1), list any open
    questions, and add a "Next" line only if the plan makes the next step obvious.
-2. **Quick drift check** (the same doctor pass as memory-checkpoint): if `CLAUDE.md` and
-   `AGENTS.md` are duplicate copies, collapse `CLAUDE.md` to `@AGENTS.md`; fix any find-replace
-   corruption (verify suspect tokens against the code); flag stale sections -- but never edit an
-   immutable master plan or locked spec. **In a guest repo this check is report-only**: their
-   tracked memory files are their system -- flag duplication or drift for the owners, fix nothing.
+2. **Quick drift check:** run memory-checkpoint's Phase 4 doctor pass, guest-repo
+   report-only rule included -- that skill holds the ONLY copy of the pass. (A summary
+   used to live here and silently fell behind the real one; don't re-inline it.)
 3. Report what you wired (vault MOC created, graph if you built one, anything reconciled). The repo is now in
    the memory layer without a re-onboarding.
 
