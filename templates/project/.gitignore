@@ -1,5 +1,7 @@
 # agent setup: personal + generated (do not commit)
+# Single source for these patterns — install.sh seeds the machine-wide git
+# ignore from THIS file. Comments and blank lines are skipped there.
 CLAUDE.local.md
 AGENTS.override.md
-.claude/settings.local.json
+**/.claude/settings.local.json
 graphify-out/
