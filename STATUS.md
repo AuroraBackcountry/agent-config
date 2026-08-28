@@ -54,16 +54,11 @@ is a reference-only checkout; it is only as fresh as the last push + pull.
 - **State-not-lifecycle prose still lives in three places** (AGENTS.md,
   memory-checkpoint, the STATUS banners); the project-key rule is now stated once,
   in AGENTS.md, with save/recall pointing at it.
-- **Backup coverage is the vault remote, nothing else.** Time Machine's destination
-  still fails to mount; `~/.claude/projects` (~780 MB of transcripts) and
-  `~/.claude/settings.json` have no off-disk copy.
 - No check covers `install.sh`, `sync.sh`, or `scaffold.sh`.
 
 ## Next
 
-1. Fix the Time Machine destination (or pick another off-disk backup for
-   `~/.claude/projects` and `~/.claude/settings.json`) — the last data with a
-   single copy.
+Nothing queued.
 
 **Standing rule:** the next change to this repo is triggered by an observed
 failure, not by another review pass. Review can find work here indefinitely;
