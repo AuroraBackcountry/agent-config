@@ -61,13 +61,14 @@ viewerPermission` returns WRITE/TRIAGE/READ, or the user says so), the repo's tr
 files are NOT your memory surfaces: no `STATUS.md` writes, no `AGENTS.md` "current
 focus", and the Phase 4 doctor pass is report-only (flag drift, never fix tracked
 files). Status and focus live in the vault MOC and
-`~/Vault/projects/<repo>/repo-local/` instead. Auto mode skips the confirmation
+`~/Vault/projects/<project>/repo-local/` instead. Auto mode skips the confirmation
 step, never this boundary.
 
 Don't assume a layout. Find where THIS project keeps memory:
 - **Status doc** (`STATUS.md` or similar) -- the mutable build state. Primary target.
-- **Vault** (`~/Vault`; `VAULT_DIR` overrides): read the project MOC
-  (`~/Vault/projects/<repo>/README.md`) for context. `/save` writes the vault; you don't.
+- **Vault** (`~/Vault`; `VAULT_DIR` overrides; `<project>` per the global
+  project-key rule): read the project MOC
+  (`~/Vault/projects/<project>/README.md`) for context. `/save` writes the vault; you don't.
 - **`AGENTS.md` "Current focus"** -- only if the project uses AGENTS.md as its status
   surface (small projects with no STATUS.md), **and only when that file is repo context,
   never a rules payload**. `~/.agents/AGENTS.md` is the source `sync.sh` bakes into every

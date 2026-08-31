@@ -10,7 +10,7 @@ memory-checkpoint's job, not this command's.
 2. Take stock once against reality: `git status`, `git diff --stat`, `git log --oneline -15`.
    Never record a claim you didn't verify.
 3. Update the repo's STATUS.md (repos I own only -- in a guest repo, skip: state lives in
-   ~/Vault/projects/<repo>/repo-local/, never in the MOC, which stays an index): current
+   ~/Vault/projects/<project>/repo-local/, never in the MOC, which stays an index): current
    state, known gaps, next concrete step, present tense, edited in place, matching the
    file's structure. Dated history goes in CHANGELOG.md if the repo
    keeps one, never in STATUS.md.

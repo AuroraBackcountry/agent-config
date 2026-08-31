@@ -27,7 +27,8 @@ ls -la AGENTS.md CLAUDE.md 2>&1        # broken symlink shows as a dangling arro
 ```
 
 If missing or dangling, restore from the vault backup before anything else:
-`~/Vault/projects/<repo>/repo-local/`. A session that starts without context is a session
+`~/Vault/projects/<project>/repo-local/` (`<project>` per the global project-key
+rule). A session that starts without context is a session
 that re-derives everything wrong.
 
 Then load durable memory with the `recall` skill.

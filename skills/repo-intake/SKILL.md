@@ -33,7 +33,7 @@ THIS codebase — the global rules already load every session; never restate the
   No `gh` or it errors: ask "yours or someone else's?" — one question.
 - **Mode:** no real context file (or only a scaffold stub) → **full onboard**. A
   real, filled-in AGENTS.md/CLAUDE.md/MASTER_PLAN system but no
-  `~/Vault/projects/<repo>/` → **wire-only**; never re-onboard or rewrite real docs
+  `~/Vault/projects/<project>/` → **wire-only**; never re-onboard or rewrite real docs
   — they outrank anything you'd write (redo only on explicit ask, renaming the old
   to `AGENTS.md.bak` first). Documented AND wired → nothing to do; stale memory is
   memory-checkpoint's job.
@@ -54,10 +54,11 @@ THIS codebase — the global rules already load every session; never restate the
 4. **Write `AGENTS.md`** at the repo root (guest repo: to the vault instead), using
    the template below. Add the one-line `CLAUDE.md` import if it's missing, or run
    `/scaffold` for the full skeleton.
-5. **Wire the vault**: `~/Vault/projects/<repo>/README.md` is a MOC that POINTS at
+5. **Wire the vault** (`<project>` per the global project-key rule, not the bare
+   directory name): `~/Vault/projects/<project>/README.md` is a MOC that POINTS at
    the repo's docs — an index, never a copy: 5-10 line summary, pointer to
    AGENTS.md, open questions, a Next line. Seed intake-surfaced decisions into
-   `~/Vault/decisions/<repo>.md`; the MOC keeps only a wikilink to them.
+   `~/Vault/decisions/<project>.md`; the MOC keeps only a wikilink to them.
 6. **Propose the first task**, tied to the intent: the task in a line or two, the
    2-3 files it touches, any risk to resolve first. Record it under Next in the
    MOC; hand off to a planning skill if it's big. The job is removing "where do I
@@ -67,7 +68,7 @@ THIS codebase — the global rules already load every session; never restate the
 
 Reading is unchanged; writes move. The tracked files belong to the repo's owners:
 
-- The canonical context file goes to `~/Vault/projects/<repo>/repo-local/AGENTS.md`,
+- The canonical context file goes to `~/Vault/projects/<project>/repo-local/AGENTS.md`,
   linked into the repo as `CLAUDE.local.md` (auto-loaded by Claude Code, ignored
   machine-wide). If a tool needs the tracked names, symlink `AGENTS.md`/`CLAUDE.md`
   at the root and add those names to the repo's `.git/info/exclude` — local-only,

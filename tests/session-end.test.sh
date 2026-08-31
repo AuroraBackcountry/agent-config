@@ -76,6 +76,18 @@ check "log files written"        "$(count '| myproject | ' "$v/logs/_sessions.lo
 check "but no commit made"       "$(git -C "$v" rev-list --count HEAD)" 1
 check "logs left uncommitted"    "$([ -n "$(git -C "$v" status --porcelain)" ] && echo dirty || echo clean)" dirty
 
+echo "5. the ~/.agents clone files under the same key as ~/code/agent-config"
+# This repo is cloned twice; the directory names differ, so the raw name would
+# split one project's vault memory in two. Keep in sync with the alias in AGENTS.md.
+v="$tmp/v5"; dotted="$tmp/.agents"
+mkdir -p "$dotted"
+git -C "$dotted" init -q
+git -C "$dotted" -c user.email=t@example.com -c user.name=t commit -q --allow-empty -m init
+run "$v" "$dotted"
+check "breadcrumb uses the alias"   "$(count '| agent-config | ' "$v/logs/_sessions.log")" 1
+check "trace uses the alias"        "$(count ' agent-config (branch' "$(traces_of "$v")")" 1
+check "raw dir name never appears"  "$(count '.agents (branch' "$(traces_of "$v")")" 0
+
 echo
 if [ "$fails" -eq 0 ]; then echo "session-end.sh: all checks passed"; else echo "session-end.sh: $fails check(s) failed"; fi
 exit "$fails"

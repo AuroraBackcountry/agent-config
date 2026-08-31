@@ -6,9 +6,16 @@
 
 ## Current state
 
-Public since 2026-07-26 under MIT. Two clones on this machine: **`~/.agents` is the
-canonical clone and the live install — every edit happens there**. `~/code/agent-config`
-is a reference-only checkout; it is only as fresh as the last push + pull.
+Public since 2026-07-26 under MIT, but not a product: the README says so outright and
+tells readers not to run `install.sh`. It is wired to this machine and changes with my
+habits; nobody has forked it.
+
+Two clones on this machine, with different jobs. **`~/.agents` is the canonical clone
+and the live install** — settings.json points the hooks there, `~/.claude/skills` and
+the global commands symlink there, and it is the only copy anything loads from. But
+sessions run from `~/code/agent-config` (97 of 97 logged `agent-config` sessions; the
+last from `~/.agents` was 2026-07-28), editing `~/.agents` by absolute path. The
+reference checkout is only as fresh as the last push + pull.
 
 - **Rules.** `AGENTS.md` + `rules/ponytail.md` + `overlays/claude-code.md` are baked by
   `sync.sh` into exactly one destination: `~/.claude/CLAUDE.md`. Baked deliberately —
@@ -40,7 +47,8 @@ is a reference-only checkout; it is only as fresh as the last push + pull.
   in this repo, guideops' stale graph deleted. infoex-api, aurora-backcountry, and
   avalanche-search keep graphs that stay frozen until a manual `/graphify --update`.
 - **Checks.** `tests/session-end.test.sh` (worktree identity, non-repo
-  writes-nothing, concurrency, never-commits-the-vault) and
+  writes-nothing, concurrency, never-commits-the-vault, the `.agents` project-key
+  alias) and
   `tests/vault-daily.test.sh` (every exit logs, commit-failure reported, secrets
   gate, quiet-day no-op; the push itself is deliberately untested). No counts here —
   a number in prose that must track code is a drift generator; run them.
@@ -52,8 +60,13 @@ is a reference-only checkout; it is only as fresh as the last push + pull.
   repo-only now but unbounded — though `/recall` now reads only the decisions tail,
   so growth costs disk, not context.
 - **State-not-lifecycle prose still lives in three places** (AGENTS.md,
-  memory-checkpoint, the STATUS banners); the project-key rule is now stated once,
-  in AGENTS.md, with save/recall pointing at it.
+  memory-checkpoint, the STATUS banners); the project-key rule is stated once, in
+  AGENTS.md, with save, recall, repo-intake, memory-checkpoint and standup pointing
+  at it and every vault path written as `<project>`.
+- **The `.agents` key alias is stated in two languages** — prose in AGENTS.md and a
+  branch in `session-end.sh` — kept together by a comment. The shell side has a test;
+  a prose-only edit that diverges from it is undetectable, and would split the vault
+  silently (`/save` writing one key, the hook another).
 - No check covers `install.sh`, `sync.sh`, or `scaffold.sh`.
 
 ## Next

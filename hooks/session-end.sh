@@ -42,6 +42,9 @@ cwd="${json_cwd:-$PWD}"
 gitcommon="$(git -C "$cwd" rev-parse --path-format=absolute --git-common-dir 2>/dev/null || true)"
 [ -n "$gitcommon" ] || exit 0
 project="$(basename "$(dirname "$gitcommon")")"
+# One alias: this config repo is cloned to both ~/.agents and ~/code/agent-config.
+# Same project, so it must not file under two keys. Keep in sync with AGENTS.md.
+if [ "$project" = ".agents" ]; then project="agent-config"; fi
 branch="$(git -C "$cwd" rev-parse --abbrev-ref HEAD 2>/dev/null || echo '-')"
 
 mkdir -p "$logdir" 2>/dev/null || exit 0
