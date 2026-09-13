@@ -5,8 +5,9 @@ Rehydrate context for the current project from my vault (default ~/Vault, or $VA
 
 1. Identify the project with the global project-key rule (defined once, in the global
    rules' "Memory and source of truth" section -- not restated here).
-2. If the repo has STATUS.md, read its current state / known gaps / next sections first --
-   it is the single source of build truth and outranks anything in the logs.
+2. If the repo has STATUS.md, read its Now block (top of file) first -- it is the briefing
+   and outranks anything in the logs. Open the other sections only when the task needs them;
+   reading STATUS whole is how a session drifts onto old threads.
 3. Read the most recent 1-3 logs in ~/Vault/logs that match this project, plus the
    LAST ~20 entries of ~/Vault/decisions/<project>.md (tail it -- the file is
    append-only and grows forever; only recent decisions are load-bearing, so dig
