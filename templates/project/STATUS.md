@@ -6,6 +6,10 @@
 > newest first), NEVER in this file: a changelog kept here once grew to 75%
 > of a 281 KB STATUS.md and buried the current state past the default read
 > window.
+>
+> Ceiling: the whole file stays under 300 lines. Over that, /save compacts before it
+> writes: shipped items and closed gaps are deleted (git holds them), embedded dates
+> leave the current-state prose. Nothing else is allowed to grow it back.
 
 ## Now
 

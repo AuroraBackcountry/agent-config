@@ -13,7 +13,10 @@ memory-checkpoint's job, not this command's.
    ~/Vault/projects/<project>/repo-local/, never in the MOC, which stays an index). Start
    with the Now block at the top: rewrite it to what is true now, under 20 lines, replacing
    lines rather than adding. Then current state and known gaps, present tense, edited in
-   place, matching the file's structure; a shipped item or closed gap is deleted (git holds it). Dated history goes in CHANGELOG.md if the repo
+   place, matching the file's structure; a shipped item or closed gap is deleted (git holds it).
+   Ceiling: if STATUS.md is over 300 lines, compact BEFORE writing -- delete shipped roadmap
+   items and closed gaps, strip embedded dates from current-state prose -- until it is under.
+   Report the before/after line count. Dated history goes in CHANGELOG.md if the repo
    keeps one, never in STATUS.md.
 4. Create or append a dated log at ~/Vault/logs/<YYYY-MM-DD>-<project>.md with:
    - What we worked on and finished
