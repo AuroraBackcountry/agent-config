@@ -41,6 +41,7 @@ phrasing that a merge silently invalidates.
                          skill can never go stale against the binary.
     commands/            Global slash commands: /scaffold, /save, /recall.
     hooks/               session-start.sh (rules self-heal + failure warnings),
+                         status-lint.sh (checks a STATUS.md against the rule),
                          session-end.sh (session trace, repo sessions only) and
                          vault-daily.sh (daily vault commit + push, wired as a
                          launchd agent by install.sh).

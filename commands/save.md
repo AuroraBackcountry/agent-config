@@ -29,6 +29,8 @@ memory-checkpoint's job, not this command's.
      Ceiling: over 300 lines or 25 KB, compact BEFORE writing -- delete shipped items and
      closed gaps, strip embedded dates -- until under. Report the before/after lines and
      size. Dated history goes in CHANGELOG.md if the repo keeps one, never in STATUS.md.
+   - **Check:** before committing, run `bash ~/.agents/hooks/status-lint.sh <repo>` and fix
+     every line it prints (ids, PR numbers, "latest X", lifecycle wording, size, Now length).
 4. Create or append a dated log at ~/Vault/logs/<YYYY-MM-DD>-<project>.md with:
    - What we worked on and finished
    - Key decisions and why

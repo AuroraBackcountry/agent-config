@@ -5,12 +5,15 @@
 # 2. Prints one line per recent failure. A SessionStart hook's stdout reaches the
 #    session, so a failed vault push or self-heal is seen the same day instead of
 #    sitting in a log nobody reads (the 2026-10-14 push-failed went unnoticed).
+# 3. Lints the session repo's STATUS.md (hooks/status-lint.sh) and prints one line if it
+#    breaks the STATUS rule, so a stray id or PR number is seen before it spreads.
 # Silent when healthy. Always exits 0. Checked by tests/session-start.test.sh.
 
 AGENTS_HOME="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 sync="${SESSION_START_SYNC:-$AGENTS_HOME/sync.sh}"
 heal_log="${SYNC_HEAL_LOG:-$HOME/.cache/sync-heal.log}"
 vault_log="${VAULT_DAILY_LOG:-$HOME/.cache/vault-daily.log}"
+dir="${SESSION_START_DIR:-$PWD}"
 
 bash "$sync" --check >/dev/null 2>&1 || bash "$sync" >/dev/null 2>&1 \
   || printf '%s self-heal failed — run sync.sh in a terminal\n' "$(date '+%F %T')" >> "$heal_log" 2>/dev/null
@@ -27,5 +30,13 @@ if [ -f "$vault_log" ]; then
 fi
 
 [ -n "$(find "$heal_log" -mtime -7 2>/dev/null)" ] && warn "rules self-heal failed in the last 7 days: \"$(tail -n 1 "$heal_log")\" — run $AGENTS_HOME/sync.sh in a terminal"
+
+top="$(git -C "$dir" rev-parse --show-toplevel 2>/dev/null)"
+if [ -n "$top" ] && [ -f "$top/STATUS.md" ]; then
+  breaks="$(bash "$AGENTS_HOME/hooks/status-lint.sh" "$top" 2>/dev/null)"
+  if [ -n "$breaks" ]; then
+    warn "$top/STATUS.md breaks the STATUS rule in $(printf '%s\n' "$breaks" | wc -l | tr -d ' ') place(s), first: $(printf '%s\n' "$breaks" | head -n 1). Fix it on the next working branch, never in a PR of its own; full list: bash $AGENTS_HOME/hooks/status-lint.sh $top"
+  fi
+fi
 
 exit 0

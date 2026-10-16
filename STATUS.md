@@ -37,7 +37,9 @@ reference checkout is only as fresh as the last push + pull.
   Freshness has two mechanisms: the post-commit hook (local commits) and
   `hooks/session-start.sh` (heals pulled drift; every overwrite leaves a `.pre-sync` safety
   copy). The same hook prints a line into the session when the last vault backup did not
-  push, none ran for 2 days, or a self-heal failed in the last 7 days; silent when healthy.
+  push, none ran for 2 days, a self-heal failed in the last 7 days, or the session repo's
+  STATUS.md breaks the STATUS rule (`hooks/status-lint.sh`, also run by `/save` and
+  memory-checkpoint); silent when healthy.
   There is no Codex support (history has it).
   Cursor is manual: `overlays/cursor.md` exists to paste, nothing generates a bundle.
 - **Template.** `templates/project/STATUS.md` opens with a Now block (live, active, open, next;
@@ -79,7 +81,8 @@ reference checkout is only as fresh as the last push + pull.
   alias) and
   `tests/vault-daily.test.sh` (every exit logs, commit-failure reported, both secrets
   gates, quiet-day no-op; the push itself is deliberately untested) and
-  `tests/session-start.test.sh` (silent when healthy, one line per failure kind). No counts here —
+  `tests/session-start.test.sh` (silent when healthy, one line per failure kind) and
+  `tests/status-lint.test.sh` (each break kind caught, the known look-alikes pass). No counts here —
   a number in prose that must track code is a drift generator; run them.
 
 ## Known gaps

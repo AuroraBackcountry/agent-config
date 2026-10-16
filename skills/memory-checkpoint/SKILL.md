@@ -96,7 +96,7 @@ Update each mutable surface with the verified state:
   current-state block is the ONLY thing a reader should trust. Reconcile stale text in place;
   don't prepend a newer banner that silently supersedes an old one. Content, where it
   lands (the status-queue.md rule) and shape (Now block, 300 lines / 25 KB) all follow
-  `/save` step 3 -- read it, don't restate it.
+  `/save` step 3 -- read it, don't restate it. Run its check (`hooks/status-lint.sh`) before writing.
 - **Vault:** don't write it. Session logs, decisions, and the MOC's "Next" pointer are
   all `/save`'s at session end. Checkpoint owns the status doc, nothing else -- the old
   "append a log only if no /save ran this session" fallback is gone because nothing
