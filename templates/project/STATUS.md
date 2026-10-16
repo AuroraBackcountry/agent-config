@@ -7,16 +7,19 @@
 > of a 281 KB STATUS.md and buried the current state past the default read
 > window.
 >
-> Ceiling: the whole file stays under 300 lines. Over that, /save compacts before it
+> Never a PR number, a build/deploy/update id, or "the latest X is Y": this edit
+> rides the PR it describes, so write only what that PR knows before it merges.
+>
+> Ceiling: the whole file stays under 300 lines and 25 KB. Over either, /save compacts before it
 > writes: shipped items and closed gaps are deleted (git holds them), embedded dates
 > leave the current-state prose. Nothing else is allowed to grow it back.
 
 ## Now
 
-Read this block first; it is the whole briefing. Keep it under 20 lines: when something
+Read this block first; it is the whole briefing. Keep it under 20 lines, one line per bullet: when something
 lands, replace a line, never add one. Everything below it is reference.
 
-- **Live:** (what is deployed or installed right now)
+- **Live:** (what runs where, e.g. "phones take main's OTA updates"; never which build)
 - **Active:** (the one thing being built or proven)
 - **Open:** (the one finding or blocker, with a pointer to its record)
 - **Next:** (the next concrete step)

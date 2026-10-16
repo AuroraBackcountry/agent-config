@@ -94,7 +94,11 @@ Update each mutable surface with the verified state:
   Branch/PR lifecycle belongs in git and the PR. If the doc keeps a dated changelog, its
   entries are frozen history (past tense: `opened #89 as draft`), and the top-of-file
   current-state block is the ONLY thing a reader should trust. Reconcile stale text in place;
-  don't prepend a newer banner that silently supersedes an old one.
+  don't prepend a newer banner that silently supersedes an old one. No PR numbers,
+  build/deploy/update ids, or "latest X" (global STATUS rule). **Write it only where a
+  working branch will carry it**, same test as `/save` step 3: on main in a PR-flow repo,
+  or on a merged branch, don't edit STATUS and never open a branch or PR for it -- report
+  the queued change instead.
 - **Vault:** don't write it. Session logs, decisions, and the MOC's "Next" pointer are
   all `/save`'s at session end. Checkpoint owns the status doc, nothing else -- the old
   "append a log only if no /save ran this session" fallback is gone because nothing
@@ -117,8 +121,9 @@ While you're in the memory files, make sure they're still correct:
 - **Staleness:** flag sections that no longer match the code or the plan. Fix the mutable
   ones; for locked docs, flag rather than edit. Grep the status doc for merge-pending
   phrasing (`draft PR`, `on branch`, `held`, `will merge`, `redeploy on merge`, `not built`,
-  `pending`) and cross-check each against `git`/`gh`: if the PR is merged, rewrite the clause
-  to present-tense state in place and demote any history to the changelog. A superseded-but-
+  `pending`), PR numbers (`#123`) and build/update ids, and cross-check each against
+  `git`/`gh`: if the PR is merged, rewrite the clause to present-tense state and drop the id
+  (on a working branch only; otherwise report it, per Phase 3). A superseded-but-
   left-in-place banner IS drift -- reconcile it, don't stack a new one on top. Also re-derive
   counts/inventories (e.g. `N functions deployed`) from the code, not the previous banner.
   Check the vault MOC too: it must hold pointers, never a copy of build state. A `Current
