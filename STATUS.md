@@ -75,7 +75,8 @@ reference checkout is only as fresh as the last push + pull.
   keys, JWTs). `.gitignore` also fences `*.pem`, `*.key`, `*.p12`, `credentials*.json`.
   `.git` is packed (~2 MB).
 - **Graphify.** On-demand only, machine-wide: no post-commit hook anywhere, no graph in
-  this repo. infoex-api, aurora-backcountry, avalanche-search and guideops keep graphs, each
+  this repo. infoex-api, aurora-backcountry and guideops keep graphs (dead repos live in
+  `~/code/_archive/`; drag one back to `~/code` to work on it), each
   frozen until a manual `/graphify --update`; infoex-api keeps one dated snapshot, the others
   keep every snapshot they ever built.
 - **Checks.** `tests/session-end.test.sh` (worktree identity, non-repo
