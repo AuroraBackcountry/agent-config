@@ -31,11 +31,17 @@ memory-checkpoint's job, not this command's.
      size. Dated history goes in CHANGELOG.md if the repo keeps one, never in STATUS.md.
    - **Check:** before committing, run `bash ~/.agents/hooks/status-lint.sh <repo>` and fix
      every line it prints (ids, PR numbers, "latest X", lifecycle wording, size, Now length).
-4. Create or append a dated log at ~/Vault/logs/<YYYY-MM-DD>-<project>.md with:
-   - What we worked on and finished
-   - Key decisions and why
-   - Open threads / next steps
-   - Links to changed files or PRs, if any
+4. Create or append a dated log at ~/Vault/logs/<YYYY-MM-DD>-<project>.md: one block per
+   session, always this shape, because `/recall` reads only the last blocks' decisions and
+   open threads:
+   ```
+   ## Session: <topic>
+   ### What we worked on and finished
+   ### Key decisions and why
+   ### Open threads / next steps
+   ```
+   Links to changed files or PRs go under "What we worked on". Open threads are the next
+   session's briefing: concrete, one line each.
 5. For any architectural or long-lived decision, also append a one-line entry to
    ~/Vault/decisions/<project>.md (date, decision, rationale). Use [[wikilinks]] to
    connect related notes.
