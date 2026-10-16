@@ -37,12 +37,12 @@ out="$(run "$tmp/sync-bad.sh" "$tmp/h4" "$tmp/v4")"
 check "heal failure logged"   "$(grep -c 'self-heal failed' "$tmp/h4")" 1
 check "heal failure reported" "$(printf '%s\n' "$out" | grep -c 'self-heal failed in the last 7 days')" 1
 
-echo "5. a repo whose STATUS.md breaks the rule gets one warning; a clean one gets none"
+echo "5. a repo whose memory files break the rules gets one warning; a clean one gets none"
 repo="$tmp/repo"; mkdir -p "$repo"; git -C "$repo" init -q
 printf '# STATUS\n\n## Now\n\n- **Live:** the latest is `7a6b476c` (#440).\n' > "$repo/STATUS.md"
 echo "2026-10-15 17:00:07 pushed HEAD=716cd1d" > "$tmp/v5"
 out="$(run "$tmp/sync-ok.sh" "$tmp/h5" "$tmp/v5" "$repo")"
-check "one STATUS warning" "$(printf '%s\n' "$out" | grep -c 'breaks the STATUS rule in 3 place')" 1
+check "one STATUS warning" "$(printf '%s\n' "$out" | grep -c 'break the rules in 3 place')" 1
 printf '# STATUS\n\n## Now\n\n- **Live:** phones take main'"'"'s over-the-air updates.\n' > "$repo/STATUS.md"
 check "clean STATUS is silent" "$(run "$tmp/sync-ok.sh" "$tmp/h5" "$tmp/v5" "$repo")" ""
 

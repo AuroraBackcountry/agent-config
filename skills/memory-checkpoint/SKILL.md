@@ -48,6 +48,9 @@ last checkpoint, decisions and why, what is done / in progress / next, and the c
 
 ## Phase 4: Doctor pass
 
+Start with `bash ~/.agents/hooks/memory-lint.sh <repo>` (the mechanical checks; it also runs at
+every session start). Then the judgment checks below.
+
 - **Duplication:** `CLAUDE.md` and `AGENTS.md` full copies of each other? Keep `AGENTS.md`
   and collapse `CLAUDE.md` to the one line `@AGENTS.md`.
 - **Corruption:** a find-replace copy (Claude<->Codex swaps, files that don't exist)? Verify

@@ -38,8 +38,10 @@ reference checkout is only as fresh as the last push + pull.
   `hooks/session-start.sh` (heals pulled drift; every overwrite leaves a `.pre-sync` safety
   copy). The same hook prints a line into the session when the last vault backup did not
   push, none ran for 2 days, a self-heal failed in the last 7 days, or the session repo's
-  STATUS.md breaks the STATUS rule (`hooks/status-lint.sh`, also run by `/save` and
-  memory-checkpoint); silent when healthy.
+  memory files fail the doctor pass's mechanical checks (`hooks/memory-lint.sh`: the STATUS
+  rule via `hooks/status-lint.sh`, a CLAUDE.md copy of AGENTS.md or an AGENTS.md over 300
+  lines / 30 KB in owned repos, PR numbers or ids in the vault MOC, "STATUS #N" in
+  auto-memory); silent when healthy. `/save` runs status-lint before writing STATUS.
   There is no Codex support (history has it).
   Cursor is manual: `overlays/cursor.md` exists to paste, nothing generates a bundle.
 - **Template.** `templates/project/STATUS.md` opens with a Now block (live, active, open, next;
@@ -82,7 +84,8 @@ reference checkout is only as fresh as the last push + pull.
   `tests/vault-daily.test.sh` (every exit logs, commit-failure reported, both secrets
   gates, quiet-day no-op; the push itself is deliberately untested) and
   `tests/session-start.test.sh` (silent when healthy, one line per failure kind) and
-  `tests/status-lint.test.sh` (each break kind caught, the known look-alikes pass). No counts here —
+  `tests/status-lint.test.sh` (each break kind caught, the known look-alikes pass) and
+  `tests/memory-lint.test.sh` (each mechanical check, guest repos exempt). No counts here —
   a number in prose that must track code is a drift generator; run them.
 
 ## Known gaps
