@@ -15,6 +15,10 @@ machine reinstalls them fresh and updatable.
 
 (Design skill + /impeccable commands. Run `/impeccable init` only in owned repos
 with a frontend; never in guest repos — it writes PRODUCT.md/DESIGN.md at root.)
+After installing, turn it OFF globally and ON per UI repo: its hooks run on every edit
+and every stop (up to 30 s) in every repo. `~/.claude/settings.json` holds
+`"enabledPlugins": {"impeccable@impeccable": false}`; each UI repo's git-ignored
+`.claude/settings.local.json` holds `true` (today: infoex-api, aurora-backcountry, guideops).
 
     /plugin marketplace add upstash/context7
     /plugin install context7@context7-marketplace

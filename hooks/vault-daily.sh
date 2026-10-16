@@ -9,12 +9,12 @@
 # EVERY run writes one status line to the log — including no-vault and cd
 # failure — so a moved vault is distinguishable from the agent not firing.
 # Always exits 0. Pure-logic paths checked by tests/vault-daily.test.sh.
-# ponytail: the push itself is untested (a real check needs a remote — mocking
+# shortcut: the push itself is untested (a real check needs a remote — mocking
 # one is fixture machinery this script doesn't earn) and fetch-free: a commit
 # reaching origin from anywhere else wedges every later push non-fast-forward
 # until a manual pull, visible here as push-failed. Single-writer vault by
 # design; upgrade path: pull --rebase before push.
-# ponytail: under launchd a shell-profile VAULT_DIR never arrives — the job
+# shortcut: under launchd a shell-profile VAULT_DIR never arrives — the job
 # always backs up ~/Vault. If the vault moves, the no-vault log line is what
 # surfaces the mismatch; fix by editing the default here or the plist.
 

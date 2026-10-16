@@ -57,7 +57,7 @@ if [ -n "$transcript_path" ] && [ -r "$transcript_path" ]; then
   first_prompt="$(python3 - "$transcript_path" <<'PY' 2>/dev/null || true
 import json, sys
 for i, line in enumerate(open(sys.argv[1], errors="replace")):
-    if i >= 50:  # ponytail: scan only the first 50 lines; the first prompt is always early
+    if i >= 50:  # shortcut: scan only the first 50 lines; the first prompt is always early
         break
     try:
         d = json.loads(line)
@@ -97,7 +97,7 @@ entry="$(
   [ -n "$transcript_path" ] && printf -- '- transcript: %s\n' "$transcript_path"
   [ -n "$first_prompt" ] && printf -- '- first prompt: %s\n' "$first_prompt"
 )"
-# ponytail: after ~1s of contention we append anyway rather than drop the record —
+# shortcut: after ~1s of contention we append anyway rather than drop the record —
 # a rare interleave beats a lost session. Upgrade path if that ever bites: one file
 # per session, merged on read.
 lock="$logdir/.traces.lock"

@@ -131,8 +131,13 @@ generated file. Per-repo `CLAUDE.md` uses the relative `@AGENTS.md` import.
 - End a session: `/save` takes stock against git once and writes both surfaces —
   `STATUS.md` (state) and the vault (session log + decisions). The SessionEnd hook
   also traces every repo session automatically (branch, changes, transcript path,
-  first prompt) so a forgotten `/save` still leaves a searchable record.
-- Resume context: `/recall` reads the recent vault notes for the current project.
+  first prompt) so a forgotten `/save` still leaves a searchable record. A STATUS edit
+  with no working branch to ride waits in `~/Vault/projects/<project>/status-queue.md`.
+- Every session start: `hooks/session-start.sh` re-bakes stale rules and prints one line
+  when the vault backup failed or the repo's memory files fail the mechanical checks
+  (`hooks/memory-lint.sh`); silent when all is well.
+- Resume context: `/recall` reads STATUS Now, the newest log's decisions and open threads,
+  and the last 10 decisions for the current project.
 - Onboard an unfamiliar repo: the `repo-intake` skill maps it, writes its
   `AGENTS.md`, and wires the vault (building a Graphify graph only when the repo
   is too large to map by reading). On a repo I don't own it goes

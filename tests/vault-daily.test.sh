@@ -2,7 +2,7 @@
 # One runnable check for hooks/vault-daily.sh — the pure-logic paths: every
 # exit writes a status line, the commit-failure branch is reported, the
 # secrets gates refuse tracked env files and key-shaped text, and a quiet day commits nothing.
-# ponytail: the push path is deliberately untested — a real check needs a
+# shortcut: the push path is deliberately untested — a real check needs a
 # remote, and standing up a fake one is fixture machinery this script doesn't
 # earn. All fixtures here are temp dirs with no remote (status: no-remote).
 #

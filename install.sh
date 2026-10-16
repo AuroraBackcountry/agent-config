@@ -97,7 +97,7 @@ while IFS= read -r pat; do
 done < "$AGENTS_HOME/templates/project/.gitignore"
 echo
 
-# SessionEnd hook: append breadcrumbs to the vault. Wired with the args form so a
+# SessionEnd hook: append a session trace to the vault. Wired with the args form so a
 # space in the path is safe.
 settings="$HOME/.claude/settings.json"
 hook_path="$AGENTS_HOME/hooks/session-end.sh"
