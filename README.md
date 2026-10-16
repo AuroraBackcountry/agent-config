@@ -40,9 +40,10 @@ phrasing that a merge silently invalidates.
                          from the installed @playwright/cli (gitignored), so the
                          skill can never go stale against the binary.
     commands/            Global slash commands: /scaffold, /save, /recall.
-    hooks/               session-end.sh (vault breadcrumb + session trace, repo
-                         sessions only) and vault-daily.sh (daily vault commit +
-                         push, wired as a launchd agent by install.sh).
+    hooks/               session-start.sh (rules self-heal + failure warnings),
+                         session-end.sh (session trace, repo sessions only) and
+                         vault-daily.sh (daily vault commit + push, wired as a
+                         launchd agent by install.sh).
     templates/project/   The standard per-repo skeleton (AGENTS.md, STATUS.md, .claude/).
     plugins.md           Marketplace plugins I install (not vendored here).
     scaffold.sh          Lay the standard layout into a project (non-destructive).
@@ -64,9 +65,9 @@ Optional — each degrades gracefully if absent:
 - **`graphify` CLI** (`pip install graphifyy` or `uv tool install graphifyy`) — powers
   the optional on-demand code graph. Without it `/graphify` is unavailable; the
   Structure layer is simply reading the code, which is the default anyway.
-- **`python3`** — enriches the session-end trace (transcript parsing). Breadcrumbs work without it.
+- **`python3`** — enriches the session-end trace (transcript parsing). The trace works without it.
 - **`jq`** — merges the SessionEnd hook into an *existing* `~/.claude/settings.json`
-  and wires the SessionStart staleness self-heal; without it the install emits JSON to paste
+  and wires the SessionStart hook (staleness self-heal + failure warnings); without it the install emits JSON to paste
   by hand and the self-heal is NOT wired (a pulled rules change stays stale until
   the next local commit).
 - **GitHub CLI (`gh`)** — powers the `standup` skill and the ownership check in
@@ -168,7 +169,7 @@ Reverse everything `install.sh` did:
    `launchctl bootout "gui/$(id -u)" ~/Library/LaunchAgents/com.agent-config.vault-daily.plist`
    and delete that plist.
 3. Remove BOTH hook entries from `~/.claude/settings.json`: the SessionEnd hook
-   and the SessionStart sync-check (the entry whose command mentions `sync.sh`).
+   and the SessionStart hook (the entry running `hooks/session-start.sh`).
    On a machine where no settings file existed before install, `install.sh`
    created it, so delete the entries (or the file) by hand; there is no `.bak`
    for that case.

@@ -60,8 +60,8 @@ and the existing memory disagree, reality wins -- note the correction.
 viewerPermission` returns WRITE/TRIAGE/READ, or the user says so), the repo's tracked
 files are NOT your memory surfaces: no `STATUS.md` writes, no `AGENTS.md` "current
 focus", and the Phase 4 doctor pass is report-only (flag drift, never fix tracked
-files). Status and focus live in the vault MOC and
-`~/Vault/projects/<project>/repo-local/` instead. Auto mode skips the confirmation
+files). Status and focus live in `~/Vault/projects/<project>/repo-local/` instead;
+the MOC stays an index. Auto mode skips the confirmation
 step, never this boundary.
 
 Don't assume a layout. Find where THIS project keeps memory:
@@ -94,11 +94,9 @@ Update each mutable surface with the verified state:
   Branch/PR lifecycle belongs in git and the PR. If the doc keeps a dated changelog, its
   entries are frozen history (past tense: `opened #89 as draft`), and the top-of-file
   current-state block is the ONLY thing a reader should trust. Reconcile stale text in place;
-  don't prepend a newer banner that silently supersedes an old one. No PR numbers,
-  build/deploy/update ids, or "latest X" (global STATUS rule). **Write it only where a
-  working branch will carry it**, same test as `/save` step 3: on main in a PR-flow repo,
-  or on a merged branch, don't edit STATUS and never open a branch or PR for it -- report
-  the queued change instead.
+  don't prepend a newer banner that silently supersedes an old one. Content, where it
+  lands (the status-queue.md rule) and shape (Now block, 300 lines / 25 KB) all follow
+  `/save` step 3 -- read it, don't restate it.
 - **Vault:** don't write it. Session logs, decisions, and the MOC's "Next" pointer are
   all `/save`'s at session end. Checkpoint owns the status doc, nothing else -- the old
   "append a log only if no /save ran this session" fallback is gone because nothing

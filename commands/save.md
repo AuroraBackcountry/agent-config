@@ -9,21 +9,26 @@ memory-checkpoint's job, not this command's.
    global rules' "Memory and source of truth" section -- not restated here).
 2. Take stock once against reality: `git status`, `git diff --stat`, `git log --oneline -15`.
    Never record a claim you didn't verify.
-3. Update the repo's STATUS.md (repos I own only -- in a guest repo, skip: state lives in
+3. **STATUS.md** -- the full rule lives here; global rules carry a one-line summary.
+   Repos I own only: in a guest repo, skip (state lives in
    ~/Vault/projects/<project>/repo-local/, never in the MOC, which stays an index).
-   **Where it lands decides whether to write it.** On a working branch whose PR is still
-   open (`gh pr view --json state`), edit and commit STATUS there. On main in a repo that
-   works through PRs, or on a branch already merged: don't touch STATUS, never create a
-   branch or PR for it -- write the queued change under "Open threads" in the log (step 4)
-   so the next working branch carries it. Repos that commit straight to main commit it there.
-   Content follows the global STATUS rule: no PR numbers, build/deploy/update ids, or
-   "latest X". Start with the Now block at the top: rewrite it to what is true now, under
-   20 lines, one line per bullet, replacing lines rather than adding. Then current state and known gaps, present tense, edited in
-   place, matching the file's structure; a shipped item or closed gap is deleted (git holds it).
-   Ceiling: if STATUS.md is over 300 lines or 25 KB, compact BEFORE writing -- delete shipped roadmap
-   items and closed gaps, strip embedded dates from current-state prose -- until it is under.
-   Report the before/after line count and size. Dated history goes in CHANGELOG.md if the repo
-   keeps one, never in STATUS.md.
+   - **What it holds:** state, not lifecycle -- present-tense facts true right now. Never
+     `draft PR` / `on branch X` / `redeploy on merge`, a PR number, a build/deploy/update id,
+     or "the latest X is Y" (write "phones take main's OTA updates"; which one is read from
+     its source: `gh`, the EAS dashboard). It is the ONE home of build state: the vault MOC
+     and auto-memory point to it, never copy it, and never record "STATUS #N merged".
+   - **Where it lands:** the edit rides the PR it describes, written as the state after
+     merge. On a working branch not yet merged: first apply and delete every item in
+     ~/Vault/projects/<project>/status-queue.md, then edit and commit STATUS there. On main
+     in a repo that works through PRs, or on a merged branch: don't touch STATUS and never
+     create a branch or PR for it -- append the change to status-queue.md as one dated
+     bullet. Repos that commit straight to main commit it there.
+   - **Shape:** the Now block first (under 20 lines, one line per bullet; when something
+     lands a line is replaced, never added), then current state and known gaps, present
+     tense, edited in place; a shipped item or closed gap is deleted (git holds it).
+     Ceiling: over 300 lines or 25 KB, compact BEFORE writing -- delete shipped items and
+     closed gaps, strip embedded dates -- until under. Report the before/after lines and
+     size. Dated history goes in CHANGELOG.md if the repo keeps one, never in STATUS.md.
 4. Create or append a dated log at ~/Vault/logs/<YYYY-MM-DD>-<project>.md with:
    - What we worked on and finished
    - Key decisions and why

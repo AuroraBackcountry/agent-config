@@ -76,7 +76,7 @@ Reading is unchanged; writes move. The tracked files belong to the repo's owners
   the vault copy; `standup` step 1 restores them.
 - Never `/scaffold`, never write `STATUS.md`, never edit their `.gitignore` — each
   is a tracked-file change someone else has to review. Build truth lives in the
-  team's own surfaces (docs, PRs, CI); your state goes in the vault MOC.
+  team's own surfaces (docs, PRs, CI); your state goes in `repo-local/`, never the MOC.
 - `repo-local/` also holds the repo's local `.env` files: they survive re-clones
   and branch switches, but they are NOT in vault git — the vault pushes to a
   private remote, and its `.gitignore` fences `*.env` out of history.

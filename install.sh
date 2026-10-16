@@ -140,34 +140,37 @@ else
 fi
 echo
 
-# SessionStart hook: re-bake a stale global at session start. Closes the ff-pull
-# hole — the repo's post-commit hook fires only on local commits, so a `git pull`
-# of commits authored elsewhere (cloud session, another machine, web edit) leaves
-# ~/.claude/CLAUDE.md stale until the next local commit. --check is a cheap diff;
-# sync.sh writes only on drift, and its non-tty marker guard still applies.
-sync_start_cmd="bash \"$AGENTS_HOME/sync.sh\" --check >/dev/null 2>&1 || bash \"$AGENTS_HOME/sync.sh\" >/dev/null 2>&1 || printf '%s self-heal failed — run sync.sh in a terminal\n' \"\$(date '+%F %T')\" >> \"\$HOME/.cache/sync-heal.log\""
+# SessionStart hook: hooks/session-start.sh re-bakes a stale global (a pull of commits
+# made elsewhere never fires post-commit) and prints recent backup/self-heal failures
+# into the session. Any older SessionStart entry pointing at sync.sh or
+# session-start.sh (the old inline command, or a previous clone path) is replaced,
+# so a re-install never leaves a dead or duplicate hook.
+start_path="$AGENTS_HOME/hooks/session-start.sh"
+chmod +x "$start_path" 2>/dev/null || true
 if [ -f "$settings" ] && command -v jq >/dev/null 2>&1; then
-  if jq -e '.hooks.SessionStart[]?.hooks[]?.args[]? | select(contains("sync.sh"))' "$settings" >/dev/null 2>&1; then
-    echo "SessionStart sync-check already wired in $settings"
+  if jq -e --arg p "$start_path" '[.hooks.SessionStart[]?.hooks[]? | select((.args // []) | any(test("sync\\.sh|session-start\\.sh")))] == [{"type":"command","command":"bash","args":[$p]}]' "$settings" >/dev/null 2>&1; then
+    echo "SessionStart hook already wired in $settings"
   else
     # distinct suffix: the SessionEnd block above may have backed up in this
     # same run, and a shared name would clobber the true pre-install state
     cp "$settings" "$settings.bak.$STAMP.sessionstart"
     tmp="$(mktemp)"
-    if jq --arg cmd "$sync_start_cmd" '
+    if jq --arg p "$start_path" '
         .hooks = (.hooks // {})
-        | .hooks.SessionStart = (.hooks.SessionStart // [])
-        | .hooks.SessionStart += [ { "hooks": [ { "type": "command", "command": "bash", "args": ["-c", $cmd] } ] } ]
+        | .hooks.SessionStart = ([(.hooks.SessionStart // [])[]
+            | .hooks = [.hooks[]? | select(((.args // []) | any(test("sync\\.sh|session-start\\.sh"))) | not)]
+            | select(.hooks | length > 0)]
+          + [ { "hooks": [ { "type": "command", "command": "bash", "args": [ $p ] } ] } ])
       ' "$settings" > "$tmp" 2>/dev/null; then
       mv "$tmp" "$settings"
-      echo "wired SessionStart sync-check into $settings (backup: $settings.bak.$STAMP.sessionstart)"
+      echo "wired SessionStart hook into $settings (backup: $settings.bak.$STAMP.sessionstart)"
     else
       rm -f "$tmp" "$settings.bak.$STAMP.sessionstart"
-      echo "note: could not add the SessionStart sync-check to $settings; add a SessionStart hook running: $sync_start_cmd"
+      echo "note: could not wire the SessionStart hook in $settings; add one running: bash \"$start_path\""
     fi
   fi
 else
-  echo "note: SessionStart sync-check not wired (needs jq and an existing $settings); add a SessionStart hook running: $sync_start_cmd"
+  echo "note: SessionStart hook not wired (needs jq and an existing $settings); add one running: bash \"$start_path\""
 fi
 echo
 

@@ -38,7 +38,6 @@ echo "1. a worktree session files under the main repo, not the worktree"
 v="$tmp/v1"; run "$v" "$wt"
 check "trace header names the repo"      "$(count ' myproject (branch' "$(traces_of "$v")")" 1
 check "worktree name is not the project" "$(count ' loving-swirles-231c69 (branch' "$(traces_of "$v")")" 0
-check "breadcrumb names the repo"        "$(count '| myproject | ' "$v/logs/_sessions.log")" 1
 
 echo "2. a session outside a repo writes nothing at all"
 v="$tmp/v2"; notrepo="$tmp/not-a-repo-xyz"; mkdir -p "$notrepo"
@@ -47,7 +46,6 @@ if git -C "$notrepo" rev-parse --git-dir >/dev/null 2>&1; then
 else
   run "$v" "$notrepo"
   check "no trace entry"       "$(count 'not-a-repo-xyz' "$(traces_of "$v")")" 0
-  check "no breadcrumb either" "$(count 'not-a-repo-xyz' "$v/logs/_sessions.log")" 0
   check "no vault dir created" "$([ -e "$v" ] && echo yes || echo no)" no
 fi
 
@@ -72,7 +70,7 @@ v="$tmp/v4"; mkdir -p "$v"
 git -C "$v" init -q
 git -C "$v" -c user.email=t@example.com -c user.name=t commit -q --allow-empty -m init
 run "$v" "$repo"
-check "log files written"        "$(count '| myproject | ' "$v/logs/_sessions.log")" 1
+check "trace written"            "$(count ' myproject (branch' "$(traces_of "$v")")" 1
 check "but no commit made"       "$(git -C "$v" rev-list --count HEAD)" 1
 check "logs left uncommitted"    "$([ -n "$(git -C "$v" status --porcelain)" ] && echo dirty || echo clean)" dirty
 
@@ -84,9 +82,11 @@ mkdir -p "$dotted"
 git -C "$dotted" init -q
 git -C "$dotted" -c user.email=t@example.com -c user.name=t commit -q --allow-empty -m init
 run "$v" "$dotted"
-check "breadcrumb uses the alias"   "$(count '| agent-config | ' "$v/logs/_sessions.log")" 1
 check "trace uses the alias"        "$(count ' agent-config (branch' "$(traces_of "$v")")" 1
 check "raw dir name never appears"  "$(count '.agents (branch' "$(traces_of "$v")")" 0
+
+echo "6. no _sessions.log breadcrumb (nothing read it)"
+check "no breadcrumb file" "$([ -e "$tmp/v1/logs/_sessions.log" ] && echo yes || echo no)" no
 
 echo
 if [ "$fails" -eq 0 ]; then echo "session-end.sh: all checks passed"; else echo "session-end.sh: $fails check(s) failed"; fi

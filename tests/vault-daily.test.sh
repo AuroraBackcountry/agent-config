@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # One runnable check for hooks/vault-daily.sh — the pure-logic paths: every
 # exit writes a status line, the commit-failure branch is reported, the
-# secrets gate refuses tracked env files, and a quiet day commits nothing.
+# secrets gates refuse tracked env files and key-shaped text, and a quiet day commits nothing.
 # ponytail: the push path is deliberately untested — a real check needs a
 # remote, and standing up a fake one is fixture machinery this script doesn't
 # earn. All fixtures here are temp dirs with no remote (status: no-remote).
@@ -51,6 +51,20 @@ v="$tmp/v5"; log="$tmp/log5"; mkvault "$v"
 run "$v" "$log"
 check "no empty commit"     "$(git -C "$v" rev-list --count HEAD)" 1
 check "still one log line"  "$(wc -l < "$log" | tr -d ' ')" 1
+
+echo "6. a key pasted into a note is refused, and nothing is committed"
+v="$tmp/v6"; log="$tmp/log6"; mkvault "$v"
+echo "token ghp_$(printf 'a%.0s' $(seq 36))" > "$v/note.md"
+run "$v" "$log"
+check "refused names the file" "$(grep -c 'refused-secrets.*note.md' "$log")" 1
+check "nothing committed"      "$(git -C "$v" rev-list --count HEAD)" 1
+check "nothing left staged"    "$(git -C "$v" diff --cached --name-only | wc -l | tr -d ' ')" 0
+
+echo "7. ordinary text with a short hex id still commits"
+v="$tmp/v7"; log="$tmp/log7"; mkvault "$v"
+echo "update 7a6b476c shipped; see sk-learn docs" > "$v/note.md"
+run "$v" "$log"
+check "commit landed"          "$(git -C "$v" rev-list --count HEAD)" 2
 
 echo
 if [ "$fails" -eq 0 ]; then echo "vault-daily.sh: all checks passed"; else echo "vault-daily.sh: $fails check(s) failed"; fi

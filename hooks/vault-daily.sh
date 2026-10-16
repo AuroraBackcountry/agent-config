@@ -38,6 +38,22 @@ if [ -n "$(git ls-files -- '*.env' '.env*' 2>/dev/null)" ]; then
 fi
 
 git add -A >/dev/null 2>&1
+
+# Content gate: a key pasted into a note or a trace (the first prompt is recorded)
+# would ride the 17:00 push. Scan only what is being added today; on a hit, unstage
+# everything and refuse, so nothing leaves the machine until the line is removed.
+# shortcut: known key shapes only (Anthropic, OpenAI, GitHub, AWS, Slack, Stripe live,
+# private keys, JWTs); a key with no fixed prefix still gets through.
+keys='sk-ant-[A-Za-z0-9_-]{20,}|sk-(proj-)?[A-Za-z0-9]{32,}|gh[pousr]_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{40,}|AKIA[0-9A-Z]{16}|xox[abprs]-[A-Za-z0-9-]{10,}|sk_live_[A-Za-z0-9]{20,}|-----BEGIN [A-Z ]*PRIVATE KEY|eyJhbGciOi[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{20,}\.'
+hits="$(git diff --cached --name-only 2>/dev/null | while IFS= read -r f; do
+  git diff --cached -U0 -- "$f" 2>/dev/null | grep '^+' | grep -qE -- "$keys" && printf '%s ' "$f"
+done)"
+if [ -n "$hits" ]; then
+  git reset -q >/dev/null 2>&1
+  note "refused-secrets (key-shaped text in: $hits)"
+  exit 0
+fi
+
 committed=ok
 if ! git diff --cached --quiet 2>/dev/null; then
   git commit -qm "vault snapshot $(date '+%Y-%m-%d')" >/dev/null 2>&1 || committed=commit-FAILED

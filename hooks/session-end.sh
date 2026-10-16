@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# session-end.sh: append a breadcrumb + a rich trace when a Claude Code session ends.
+# session-end.sh: append a trace when a Claude Code session ends.
 # Repo sessions only — a session outside a repo writes nothing (unfiltered, 58% of
-# breadcrumbs were home-directory noise nothing ever read).
-# Breadcrumb: one line in logs/_sessions.log (unchanged format).
+# breadcrumbs were home-directory noise nothing ever read). The one-line
+# logs/_sessions.log breadcrumb is gone too: nothing read it, the trace holds the same.
 # Trace: markdown entry in logs/_traces-YYYY-MM.md — append-only frozen history (past
 # tense) with branch, reason, change summary, transcript path, and the first prompt,
 # so a session forgotten by /save still leaves a searchable record.
@@ -48,9 +48,6 @@ if [ "$project" = ".agents" ]; then project="agent-config"; fi
 branch="$(git -C "$cwd" rev-parse --abbrev-ref HEAD 2>/dev/null || echo '-')"
 
 mkdir -p "$logdir" 2>/dev/null || exit 0
-
-printf '%s | %s | branch=%s | %s\n' "$ts" "$project" "$branch" "$cwd" \
-  >> "$logdir/_sessions.log" 2>/dev/null || true
 
 # --- rich trace (everything below is best-effort) ---
 
