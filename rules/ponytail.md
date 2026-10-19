@@ -1,7 +1,7 @@
 <!--
 Ponytail (lazy senior dev ruleset) - pinned vendor snapshot.
 Source:  https://github.com/DietrichGebert/ponytail  (repo-root AGENTS.md, compact ruleset)
-Version: 5.2.0   Commit: 2961b52   Pulled: 2026-10-15   License: MIT (c) 2026 DietrichGebert
+Version: 5.3.2   Commit: 16352ac   Pulled: 2026-10-18   License: MIT (c) 2026 DietrichGebert
 Refresh: overwrite the body below with upstream's AGENTS.md, keep this header, bump Version/Commit/Pulled. Do not hand-edit the rules.
 Deviation: dropped upstream's trailing "also applies to the ponytail repo itself" line (irrelevant here). Otherwise verbatim.
 -->
