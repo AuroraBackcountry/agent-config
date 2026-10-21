@@ -38,6 +38,20 @@ starts biting. Do NOT use `ctx7 setup` to install it — its `--universal` targe
 writes into `~/.agents/skills`, i.e. this repo, and its MCP mode writes an agent
 rules file; both go around sync.sh.)
 
+    /plugin marketplace add Leonxlnx/taste-skill
+    /plugin install taste-skill@taste-skill
+
+(Leonxlnx's taste-skill: one skill, `design-taste-frontend`; no hooks or MCP. Always-on
+~246 tok, ~9.4k when it fires. Do NOT use `npx skills add` for it: like `ctx7 setup`,
+it writes into `~/.agents/skills`. Reviewed at v2.1.4 (6010f91a, 2026-10-21): no
+malicious code; scripts use Node built-ins only. A full run is long (30-45 min, a few
+hundred k tokens) and its trigger overlaps impeccable. Writes `~/.taste-skill/history.json`.
+Pages it builds hotlink jsDelivr, Google Fonts/Fontshare and picsum.photos; self-host
+those before shipping a guest-facing page.
+Like impeccable, OFF globally (`"taste-skill@taste-skill": false` in `~/.claude/settings.json`)
+and ON per UI repo via its git-ignored `.claude/settings.local.json` (today: infoex-api,
+aurora-backcountry, guideops).)
+
 ## Notes
 - This lists user-scope plugins only. Project-scoped plugins (installed for a single
   repo) live in that repo's own `.claude` config and are not tracked here.
