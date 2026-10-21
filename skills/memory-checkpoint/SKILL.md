@@ -27,9 +27,9 @@ last checkpoint, decisions and why, what is done / in progress / next, and the c
 ## Phase 2: Find the surfaces
 
 - **Guest repo** (`gh repo view --json viewerPermission` is not ADMIN, or the user says so):
-  tracked files are not your surfaces. No STATUS.md, no AGENTS.md focus; the doctor pass only
-  reports. State goes in `~/Vault/projects/<project>/repo-local/`; the MOC stays an index.
-  No mode overrides this.
+  tracked files are not your surfaces. The status doc, if any, is the private `STATUS.md` in
+  `~/Vault/projects/<project>/repo-local/`; no AGENTS.md focus; the doctor pass only reports.
+  State goes in `repo-local/`; the MOC stays an index. No mode overrides this.
 - **Status doc** (`STATUS.md` or similar): the primary target.
 - **AGENTS.md "Current focus"**: only in small repos with no STATUS.md, and never in a rules
   payload. A repo root holding `sync.sh` and `overlays/` is agent-config: its AGENTS.md is

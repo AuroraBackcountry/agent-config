@@ -70,13 +70,14 @@ Reading is unchanged; writes move. The tracked files belong to the repo's owners
 
 - The canonical context file goes to `~/Vault/projects/<project>/repo-local/AGENTS.md`,
   linked into the repo as `CLAUDE.local.md` (auto-loaded by Claude Code, ignored
-  machine-wide). If a tool needs the tracked names, symlink `AGENTS.md`/`CLAUDE.md`
-  at the root and add those names to the repo's `.git/info/exclude` — local-only,
-  invisible to the owners. A re-clone or `git clean -fdx` kills the links, never
-  the vault copy; `standup` step 1 restores them.
-- Never `/scaffold`, never write `STATUS.md`, never edit their `.gitignore` — each
-  is a tracked-file change someone else has to review. Build truth lives in the
-  team's own surfaces (docs, PRs, CI); your state goes in `repo-local/`, never the MOC.
+  machine-wide). If a tool needs the tracked names, symlink `AGENTS.md`, `CLAUDE.md`
+  and `STATUS.md` at the root and add those names to the repo's `.git/info/exclude` —
+  local-only, invisible to the owners. A re-clone or `git clean -fdx` kills the links,
+  never the vault copy; `standup` step 1 restores them.
+- Never `/scaffold`, never write a tracked `STATUS.md`, never edit their `.gitignore` —
+  each is a tracked-file change someone else has to review. Build truth lives in the
+  team's own surfaces (docs, PRs, CI); your state goes in `repo-local/` (a private
+  `STATUS.md` lives there like `AGENTS.md`), never the MOC.
 - `repo-local/` also holds the repo's local `.env` files: they survive re-clones
   and branch switches, but they are NOT in vault git — the vault pushes to a
   private remote, and its `.gitignore` fences `*.env` out of history.
