@@ -23,13 +23,14 @@ Local agent context is often gitignored or symlinked, which means a branch switc
 `git clean -fdx`, or a fresh clone silently removes it.
 
 ```bash
-ls -la AGENTS.md CLAUDE.md 2>&1        # broken symlink shows as a dangling arrow
+ls -la AGENTS.md CLAUDE.md CLAUDE.local.md STATUS.md 2>&1   # broken symlink shows as a dangling arrow
 ```
 
 If missing or dangling, restore from the vault backup before anything else:
 `~/Vault/projects/<project>/repo-local/` (`<project>` per the global project-key
-rule). A session that starts without context is a session
-that re-derives everything wrong.
+rule). Restore only what `repo-local/` holds: a name absent from the repo and from
+`repo-local/` is not in use, not lost. A session that starts without context is a
+session that re-derives everything wrong.
 
 Then load durable memory with the `recall` skill.
 
