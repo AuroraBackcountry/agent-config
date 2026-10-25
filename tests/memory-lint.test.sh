@@ -25,6 +25,9 @@ echo "2. each check fires"
 r="$tmp/dupe"; mkrepo "$r" "git@github.com:Aurora-Backcountry/dupe.git"
 printf '# A\nsame\n' > "$r/AGENTS.md"; cp "$r/AGENTS.md" "$r/CLAUDE.md"
 check "CLAUDE.md copy"  "$(lint "$r" | grep -c 'full copy')" 1
+r="$tmp/sshurl"; mkrepo "$r" "ssh://git@github.com:22/AuroraBackcountry/sshurl.git"
+printf '# A\nsame\n' > "$r/AGENTS.md"; cp "$r/AGENTS.md" "$r/CLAUDE.md"
+check "ssh:// origin is owned" "$(lint "$r" | grep -c 'full copy')" 1
 r="$tmp/big"; mkrepo "$r"
 for i in $(seq 305); do echo "line $i"; done > "$r/AGENTS.md"
 check "AGENTS.md size"  "$(lint "$r" | grep -c 'over 300 lines')" 1

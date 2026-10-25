@@ -7,5 +7,5 @@
 owners="${OWNED_GH_OWNERS:-AuroraBackcountry Aurora-Backcountry}"
 origin="$(git -C "${1:-$PWD}" remote get-url origin 2>/dev/null)"
 [ -z "$origin" ] && exit 0
-owner="$(printf '%s' "$origin" | sed -E 's#^(https://[^/]+/|git@[^:]+:)([^/]+)/.*#\2#')"
+owner="$(printf '%s' "$origin" | sed -E 's#^(https://[^/]+/|ssh://[^/]+/|git@[^:]+:)([^/]+)/.*#\2#')"
 [[ " $owners " == *" $owner "* ]]
