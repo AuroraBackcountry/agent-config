@@ -13,7 +13,7 @@ Read this block first; it is the whole briefing. Under 20 lines; lines get repla
   `~/Vault/projects/<project>/status-queue.md`, 300 lines and 25 KB.
 - **Active:** nothing. The standing rule holds — the next change waits for an observed failure.
 - **Open:** nothing. impeccable and taste-skill are local-scope installs in infoex-api,
-  aurora-backcountry and guideops only; no user-scope copy, nothing in `~/.claude/settings.json`.
+  aurora-backcountry and guideops only; no user-scope copy, a `false` each in `~/.claude/settings.json`.
 - **Next:** nothing queued.
 - **Where the rest is:** Current state and Known gaps below · decisions in
   `~/Vault/decisions/agent-config.md` · history in `git log`.

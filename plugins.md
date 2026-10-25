@@ -18,10 +18,14 @@ with a frontend; never in guest repos — it writes PRODUCT.md/DESIGN.md at root
 Local scope only, never user scope: its hooks run on every edit and every stop (up to
 30 s), so it belongs only in UI repos (today: infoex-api, aurora-backcountry, guideops).
 The install writes `"enabledPlugins": {"impeccable@impeccable": true}` into that repo's
-git-ignored `.claude/settings.local.json`; `~/.claude/settings.json` never names it. The
-old scheme — one user-scope install, off globally, on per repo — made Claude Code
-auto-install a second local copy wherever it was on (each worktree too), so every UI repo
-listed it twice.
+git-ignored `.claude/settings.local.json`. `~/.claude/settings.json` keeps
+`"impeccable@impeccable": false` with NO user-scope install: a `false` triggers no
+auto-install, and it stops a session that merely attaches a UI repo (`--add-dir`) from
+loading the plugin — without it that repo's local `true` is the only vote and wins.
+(`claude plugin list` then notes on each local row that the user setting is overridden;
+expected.) The old scheme — one user-scope install, off globally, on per repo — made
+Claude Code auto-install a second local copy wherever it was on (each worktree too), so
+every UI repo listed it twice.
 
     /plugin marketplace add upstash/context7
     /plugin install context7@context7-marketplace
@@ -52,7 +56,8 @@ hundred k tokens) and its trigger overlaps impeccable. Writes `~/.taste-skill/hi
 Pages it builds hotlink jsDelivr, Google Fonts/Fontshare and picsum.photos; self-host
 those before shipping a guest-facing page.
 Like impeccable, local scope only, installed inside each UI repo (today: infoex-api,
-aurora-backcountry, guideops); no user-scope copy.)
+aurora-backcountry, guideops); no user-scope copy, `"taste-skill@taste-skill": false` in
+`~/.claude/settings.json`.)
 
 ## Notes
 - This lists what a new machine reinstalls: user-scope plugins, plus the two UI plugins
