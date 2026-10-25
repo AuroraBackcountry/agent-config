@@ -39,13 +39,19 @@ reference checkout is only as fresh as the last push + pull.
   copy). The same hook prints a line into the session when the last vault backup did not
   push, none ran for 2 days, a self-heal failed in the last 7 days, or the session repo's
   memory files fail the doctor pass's mechanical checks (`hooks/memory-lint.sh`: the STATUS
-  rule via `hooks/status-lint.sh`, a CLAUDE.md copy of AGENTS.md or an AGENTS.md over 300
-  lines / 30 KB in owned repos, PR numbers or ids in the vault MOC, "STATUS #N" in
-  auto-memory); silent when healthy. `/save` runs status-lint before writing STATUS.
+  rule via `hooks/status-lint.sh` on STATUS.md and each doc its `Status docs:` line names, a
+  CLAUDE.md copy of AGENTS.md, an AGENTS.md over 300 lines / 30 KB or a stale
+  `scripts/status-lint.sh` in owned repos, PR numbers or ids in the vault MOC, and in
+  auto-memory "STATUS #N", a folder over 64 KB or one trap headline in two files); silent when
+  healthy. `/save` runs status-lint before writing STATUS. Owned vs guest is one test,
+  `hooks/owned.sh` (origin owner), shared by every hook.
   There is no Codex support (history has it).
   Cursor is manual: `overlays/cursor.md` exists to paste, nothing generates a bundle.
-- **Template.** `templates/project/STATUS.md` opens with a Now block (live, active, open, next;
-  under 20 lines, one line per bullet) and carries a 300-line and 25 KB ceiling. Its
+- **Template.** `templates/project/STATUS.md` opens with a `Status docs:` line and a Now block
+  (live, active, open, next; under 20 lines, one line per bullet under 300 characters) and
+  carries a 300-line and 25 KB ceiling. `scripts/status-lint.sh` (a link to
+  `hooks/status-lint.sh`; scaffold copies its content) and `.github/workflows/status-lint.yml`
+  check the changed status-doc lines on every PR, `.md`-only ones included. Its
   `.gitignore` (also the seed of the machine-wide ignore) covers `.claude/worktrees/`.
   `/recall` reads Now first and the rest on need; `/save` rewrites Now first and, over the
   ceiling, deletes shipped items and closed gaps before it writes (git holds them). The global
@@ -62,7 +68,10 @@ reference checkout is only as fresh as the last push + pull.
   step 3 holds the full STATUS rule; AGENTS.md carries a one-line summary.
   `memory-checkpoint` is mid-session capture plus the doctor pass, of which it holds
   the ONLY copy; repo-intake delegates to it.
-- **Hooks.** `session-end.sh`: one trace entry for repo sessions only, writes no git (the
+- **Hooks.** `commit-lint.sh`: a user-level PreToolUse(Bash) hook; before a `git commit` it runs
+  `status-lint.sh --diff HEAD` and hands Claude the breaks as JSON `additionalContext` (Claude
+  never sees stderr from a PreToolUse hook that exits 0). Never blocks; any error is exit 0
+  and no output; guest repos skipped. `session-end.sh`: one trace entry for repo sessions only, writes no git (the
   `_sessions.log` breadcrumb is gone: nothing read it). `vault-daily.sh`: launchd agent at 17:00 commits and pushes `~/Vault` to the
   private remote (`AuroraBackcountry/vault`); one evidence line per run in
   `~/.cache/vault-daily.log`.
@@ -85,8 +94,11 @@ reference checkout is only as fresh as the last push + pull.
   `tests/vault-daily.test.sh` (every exit logs, commit-failure reported, both secrets
   gates, quiet-day no-op; the push itself is deliberately untested) and
   `tests/session-start.test.sh` (silent when healthy, one line per failure kind) and
-  `tests/status-lint.test.sh` (each break kind caught, the known look-alikes pass) and
-  `tests/memory-lint.test.sh` (each mechanical check, guest repos exempt). No counts here —
+  `tests/status-lint.test.sh` (each break kind caught, the known look-alikes pass, named side
+  docs, `--diff` changed lines only) and
+  `tests/commit-lint.test.sh` (each commit form, silent cases, fail-open on every broken part) and
+  `tests/memory-lint.test.sh` (each mechanical check, guest repos exempt) and
+  `tests/scaffold.test.sh` (the lint lands as a real copy, re-runs add nothing). No counts here —
   a number in prose that must track code is a drift generator; run them.
 
 ## Known gaps
@@ -102,7 +114,11 @@ reference checkout is only as fresh as the last push + pull.
   branch in `session-end.sh` — kept together by a comment. The shell side has a test;
   a prose-only edit that diverges from it is undetectable, and would split the vault
   silently (`/save` writing one key, the hook another).
-- No check covers `install.sh`, `sync.sh`, or `scaffold.sh`.
+- No check covers `install.sh` or `sync.sh` (the PreToolUse wiring was run once against a copy
+  of settings.json: wires, re-run is a no-op, an old path is replaced).
+- **commit-lint reads the repo from `git -C` or the session folder**, never from a
+  `cd <dir> &&` in the command, and checks every status-doc change since HEAD, not only the
+  paths a `git commit <path>` names. Print only, so the cost is extra lines, never a block.
 
 ## Next
 

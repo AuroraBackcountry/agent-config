@@ -1,0 +1,24 @@
+# Status lint: the STATUS rule (state, not lifecycle; /save step 3 in ~/.agents) on the lines this PR
+# changes in STATUS.md and the docs its `Status docs:` line names. It reaches the writers a user-level
+# hook never sees: cloud sessions, Cursor agents, edits on github.com. It runs on every PR, .md-only
+# ones too (they are the ones that change status docs), so never add paths-ignore here.
+# scripts/status-lint.sh is a copy of ~/.agents/hooks/status-lint.sh; memory-lint says when it is stale.
+name: Status lint
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  status-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: STATUS rule on the changed lines
+        env:
+          BASE: origin/${{ github.base_ref }}
+        run: bash scripts/status-lint.sh --diff "$BASE" .

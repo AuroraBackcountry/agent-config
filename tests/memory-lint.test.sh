@@ -25,6 +25,9 @@ echo "2. each check fires"
 r="$tmp/dupe"; mkrepo "$r" "git@github.com:Aurora-Backcountry/dupe.git"
 printf '# A\nsame\n' > "$r/AGENTS.md"; cp "$r/AGENTS.md" "$r/CLAUDE.md"
 check "CLAUDE.md copy"  "$(lint "$r" | grep -c 'full copy')" 1
+r="$tmp/sshurl"; mkrepo "$r" "ssh://git@github.com:22/AuroraBackcountry/sshurl.git"
+printf '# A\nsame\n' > "$r/AGENTS.md"; cp "$r/AGENTS.md" "$r/CLAUDE.md"
+check "ssh:// origin is owned" "$(lint "$r" | grep -c 'full copy')" 1
 r="$tmp/big"; mkrepo "$r"
 for i in $(seq 305); do echo "line $i"; done > "$r/AGENTS.md"
 check "AGENTS.md size"  "$(lint "$r" | grep -c 'over 300 lines')" 1
@@ -38,10 +41,29 @@ printf -- '- STATUS #436 merged\n' > "$m/current-phase.md"
 check "memory merge"    "$(lint "$r" | grep -c 'STATUS-only PR')" 1
 r="$tmp/stat"; mkrepo "$r"; printf '## Now\n\n- on `7a6b476c`\n' > "$r/STATUS.md"
 check "STATUS rule"     "$(lint "$r" | grep -c 'commit id')" 1
+memdir() { local d; d="$tmp/projects/$(git -C "$1" rev-parse --show-toplevel | sed 's/[^A-Za-z0-9]/-/g')/memory"; mkdir -p "$d"; printf '%s' "$d"; }
+r="$tmp/fat"; mkrepo "$r"; m="$(memdir "$r")"
+head -c 40000 /dev/zero | tr '\0' a > "$m/a.md"; head -c 30000 /dev/zero | tr '\0' b > "$m/b.md"
+check "memory budget"   "$(lint "$r" | grep -c 'memory/: 68 KB, over the 64 KB budget')" 1
+rm "$m/b.md"
+check "under budget"    "$(lint "$r")" ""
+r="$tmp/twice"; mkrepo "$r"; m="$(memdir "$r")"
+printf -- '- **`preview_start` serves the MAIN checkout (2026-09-25).** text\n' > "$m/traps-browser.md"
+printf -- '- **Preview_start serves the main checkout!** copy\n- **Why:** short\n' > "$m/traps-agents.md"
+printf -- '- **Why:** short\n' > "$m/feedback.md"
+check "one trap twice"  "$(lint "$r" | grep -c 'one trap in two files: "preview start serves the main checkout"')" 1
+rm "$m/traps-agents.md"; printf -- '- **Why:** short\n' >> "$m/traps-browser.md"
+check "short headline twice is fine" "$(lint "$r")" ""
+here="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+r="$tmp/ci"; mkrepo "$r"; mkdir -p "$r/scripts"; printf '# old copy\n' > "$r/scripts/status-lint.sh"
+check "stale CI copy"   "$(lint "$r" | grep -c 'scripts/status-lint.sh: differs')" 1
+cp "$here/hooks/status-lint.sh" "$r/scripts/status-lint.sh"
+check "current CI copy" "$(lint "$r")" ""
 
 echo "3. a guest repo's duplicate files are not flagged"
 r="$tmp/guest"; mkrepo "$r" "https://github.com/someone-else/tool.git"
 printf '# A\nsame\n' > "$r/AGENTS.md"; cp "$r/AGENTS.md" "$r/CLAUDE.md"
+mkdir -p "$r/scripts"; printf '# their own lint\n' > "$r/scripts/status-lint.sh"
 check "guest silent"    "$(lint "$r")" ""
 
 echo
