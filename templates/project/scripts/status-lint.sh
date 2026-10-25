@@ -1,0 +1,1 @@
+../../../hooks/status-lint.sh

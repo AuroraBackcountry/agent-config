@@ -23,7 +23,7 @@ while IFS= read -r -d '' src; do
   cp "$src" "$dest"
   echo "added  $rel"
   added=$((added + 1))
-done < <(find "$TEMPLATE" -type f -print0)
+done < <(find -L "$TEMPLATE" -type f -print0)  # -L: scripts/status-lint.sh links to hooks/, cp copies its content
 
 if [ "$added" -eq 0 ]; then
   echo "nothing to do: project already matches the standard layout"

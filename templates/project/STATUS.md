@@ -13,11 +13,17 @@
 > Ceiling: the whole file stays under 300 lines and 25 KB. Over either, /save compacts before it
 > writes: shipped items and closed gaps are deleted (git holds them), embedded dates
 > leave the current-state prose. Nothing else is allowed to grow it back.
+>
+> Side files that hold status (a ledger, a walk list) are named on the `Status docs:` line below
+> and keep the same rule and ceiling. status-lint checks them at session start, before each
+> commit and in CI (`scripts/status-lint.sh`).
+
+Status docs: STATUS.md only (name a ledger or walk list here when the repo keeps one)
 
 ## Now
 
-Read this block first; it is the whole briefing. Keep it under 20 lines, one line per bullet: when something
-lands, replace a line, never add one. Everything below it is reference.
+Read this block first; it is the whole briefing. Keep it under 20 lines, one line per bullet, each under
+300 characters: when something lands, replace a line, never add one. Everything below it is reference.
 
 - **Live:** (what runs where, e.g. "phones take main's OTA updates"; never which build)
 - **Active:** (the one thing being built or proven)

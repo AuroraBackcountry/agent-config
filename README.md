@@ -41,12 +41,16 @@ phrasing that a merge silently invalidates.
                          skill can never go stale against the binary.
     commands/            Global slash commands: /scaffold, /save, /recall.
     hooks/               session-start.sh (rules self-heal + failure warnings),
-                         status-lint.sh (checks a STATUS.md against the rule),
+                         status-lint.sh (checks STATUS.md and the status docs
+                         it names against the rule; --diff for changed lines),
+                         commit-lint.sh (runs it before a `git commit`; print only),
                          memory-lint.sh (the doctor pass's mechanical checks),
+                         owned.sh (the one guest-repo test),
                          session-end.sh (session trace, repo sessions only) and
                          vault-daily.sh (daily vault commit + push, wired as a
                          launchd agent by install.sh).
-    templates/project/   The standard per-repo skeleton (AGENTS.md, STATUS.md, .claude/).
+    templates/project/   The standard per-repo skeleton (AGENTS.md, STATUS.md, .claude/,
+                         scripts/status-lint.sh + a CI workflow that runs it on every PR).
     plugins.md           Marketplace plugins I install (not vendored here).
     scaffold.sh          Lay the standard layout into a project (non-destructive).
     sync.sh              Regenerate the global Claude file from canonical.
@@ -69,9 +73,9 @@ Optional — each degrades gracefully if absent:
   Structure layer is simply reading the code, which is the default anyway.
 - **`python3`** — enriches the session-end trace (transcript parsing). The trace works without it.
 - **`jq`** — merges the SessionEnd hook into an *existing* `~/.claude/settings.json`
-  and wires the SessionStart hook (staleness self-heal + failure warnings); without it the install emits JSON to paste
-  by hand and the self-heal is NOT wired (a pulled rules change stays stale until
-  the next local commit).
+  and wires the SessionStart hook (staleness self-heal + failure warnings) and the
+  PreToolUse commit-lint hook; without it the install emits JSON to paste by hand and
+  neither is wired (a pulled rules change stays stale until the next local commit).
 - **GitHub CLI (`gh`)** — powers the `standup` skill and the ownership check in
   `repo-intake`'s guest-repo mode; without it those fall back to asking.
 - **Node** — for the `npm i -g` CLIs some skills drive (`@playwright/cli`, `defuddle-cli`).
@@ -136,6 +140,10 @@ generated file. Per-repo `CLAUDE.md` uses the relative `@AGENTS.md` import.
 - Every session start: `hooks/session-start.sh` re-bakes stale rules and prints one line
   when the vault backup failed or the repo's memory files fail the mechanical checks
   (`hooks/memory-lint.sh`); silent when all is well.
+- Every `git commit` an agent runs: `hooks/commit-lint.sh` hands it the STATUS-rule breaks in
+  the status-doc lines that commit changes; it never blocks. Writers that never see a
+  user-level hook (cloud sessions, Cursor, github.com) meet the same check in CI, from the
+  scaffolded `scripts/status-lint.sh`.
 - Resume context: `/recall` reads STATUS Now, the newest log's decisions and open threads,
   and the last 10 decisions for the current project.
 - Onboard an unfamiliar repo: the `repo-intake` skill maps it, writes its
@@ -175,8 +183,9 @@ Reverse everything `install.sh` did:
    `~/.claude/commands`. Unload the vault-backup launchd agent:
    `launchctl bootout "gui/$(id -u)" ~/Library/LaunchAgents/com.agent-config.vault-daily.plist`
    and delete that plist.
-3. Remove BOTH hook entries from `~/.claude/settings.json`: the SessionEnd hook
-   and the SessionStart hook (the entry running `hooks/session-start.sh`).
+3. Remove the three hook entries from `~/.claude/settings.json`: the SessionEnd hook,
+   the SessionStart hook (the entry running `hooks/session-start.sh`) and the
+   PreToolUse hook (the entry running `hooks/commit-lint.sh`).
    On a machine where no settings file existed before install, `install.sh`
    created it, so delete the entries (or the file) by hand; there is no `.bak`
    for that case.

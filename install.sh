@@ -174,6 +174,36 @@ else
 fi
 echo
 
+# PreToolUse hook: hooks/commit-lint.sh hands Claude the STATUS-rule breaks in the status-doc
+# lines a `git commit` changes. Print only: it never blocks, fails open, and the timeout caps a
+# hang (a timed-out PreToolUse hook does not block the call). An older entry for it is replaced.
+lint_path="$AGENTS_HOME/hooks/commit-lint.sh"
+chmod +x "$lint_path" 2>/dev/null || true
+if [ -f "$settings" ] && command -v jq >/dev/null 2>&1; then
+  if jq -e --arg p "$lint_path" '[.hooks.PreToolUse[]? | {matcher, h: .hooks[]?} | select((.h.args // []) | any(test("commit-lint\\.sh")))] == [{"matcher":"Bash","h":{"type":"command","command":"bash","args":[$p],"timeout":10}}]' "$settings" >/dev/null 2>&1; then
+    echo "PreToolUse commit-lint hook already wired in $settings"
+  else
+    cp "$settings" "$settings.bak.$STAMP.pretooluse"
+    tmp="$(mktemp)"
+    if jq --arg p "$lint_path" '
+        .hooks = (.hooks // {})
+        | .hooks.PreToolUse = ([(.hooks.PreToolUse // [])[]
+            | .hooks = [.hooks[]? | select(((.args // []) | any(test("commit-lint\\.sh"))) | not)]
+            | select(.hooks | length > 0)]
+          + [ { "matcher": "Bash", "hooks": [ { "type": "command", "command": "bash", "args": [ $p ], "timeout": 10 } ] } ])
+      ' "$settings" > "$tmp" 2>/dev/null; then
+      mv "$tmp" "$settings"
+      echo "wired PreToolUse commit-lint hook into $settings (backup: $settings.bak.$STAMP.pretooluse)"
+    else
+      rm -f "$tmp" "$settings.bak.$STAMP.pretooluse"
+      echo "note: could not wire the commit-lint hook in $settings; add a PreToolUse Bash hook running: bash \"$lint_path\""
+    fi
+  fi
+else
+  echo "note: commit-lint hook not wired (needs jq and an existing $settings); add a PreToolUse Bash hook running: bash \"$lint_path\""
+fi
+echo
+
 # Daily vault backup: a launchd agent runs hooks/vault-daily.sh at 17:00 (commit +
 # push ~/Vault to its private remote). launchd, not cron: a run missed while the
 # laptop sleeps fires on the next wake; cron would skip it silently. The plist is
