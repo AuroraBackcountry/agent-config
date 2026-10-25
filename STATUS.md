@@ -12,8 +12,8 @@ Read this block first; it is the whole briefing. Under 20 lines; lines get repla
   STATUS rule: no PR numbers or build ids, the edit rides its own PR, waiting edits go to
   `~/Vault/projects/<project>/status-queue.md`, 300 lines and 25 KB.
 - **Active:** nothing. The standing rule holds — the next change waits for an observed failure.
-- **Open:** nothing. impeccable and taste-skill are off globally and on only in infoex-api,
-  aurora-backcountry and guideops (their git-ignored `.claude/settings.local.json`).
+- **Open:** nothing. impeccable and taste-skill are local-scope installs in infoex-api,
+  aurora-backcountry and guideops only; no user-scope copy, nothing in `~/.claude/settings.json`.
 - **Next:** nothing queued.
 - **Where the rest is:** Current state and Known gaps below · decisions in
   `~/Vault/decisions/agent-config.md` · history in `git log`.
