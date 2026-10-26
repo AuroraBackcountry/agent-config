@@ -14,7 +14,8 @@ ok()    { printf '  ok   %s\n' "$1"; }
 fail()  { printf '  FAIL %s\n' "$1"; fails=$((fails + 1)); }
 check() { [ "$2" = "$3" ] && ok "$1" || fail "$1 — got '$2', want '$3'"; }
 mkrepo() { mkdir -p "$1"; git -C "$1" init -q; [ -n "${2:-}" ] && git -C "$1" remote add origin "$2"; true; }
-lint() { VAULT_DIR="$tmp/vault" CLAUDE_PROJECTS_DIR="$tmp/projects" bash "$LINT" "$1"; }
+lint() { VAULT_DIR="$tmp/vault" CLAUDE_PROJECTS_DIR="$tmp/projects" bash "$LINT" "$1" 2>/dev/null; }
+info() { VAULT_DIR="$tmp/vault" CLAUDE_PROJECTS_DIR="$tmp/projects" bash "$LINT" "$1" 2>&1 >/dev/null; }
 
 echo "1. a clean owned repo is silent"
 r="$tmp/clean"; mkrepo "$r" "https://github.com/AuroraBackcountry/clean.git"
@@ -44,9 +45,16 @@ check "STATUS rule"     "$(lint "$r" | grep -c 'commit id')" 1
 memdir() { local d; d="$tmp/projects/$(git -C "$1" rev-parse --show-toplevel | sed 's/[^A-Za-z0-9]/-/g')/memory"; mkdir -p "$d"; printf '%s' "$d"; }
 r="$tmp/fat"; mkrepo "$r"; m="$(memdir "$r")"
 head -c 40000 /dev/zero | tr '\0' a > "$m/a.md"; head -c 30000 /dev/zero | tr '\0' b > "$m/b.md"
-check "memory budget"   "$(lint "$r" | grep -c 'memory/: 68 KB, over the 64 KB budget')" 1
-rm "$m/b.md"
-check "under budget"    "$(lint "$r")" ""
+printf -- '- [A](a.md) — a trap\n' > "$m/MEMORY.md"
+check "big trap files pass"    "$(lint "$r")" ""
+check "big trap files exit 0"  "$(lint "$r" >/dev/null; echo $?)" 0
+check "folder total is info"   "$(info "$r" | grep -c '^memory/: 68 KB in all')" 1
+for i in $(seq 200); do echo "- line $i"; done > "$m/MEMORY.md"
+check "MEMORY.md at 200 lines" "$(lint "$r")" ""
+echo "- line 201" >> "$m/MEMORY.md"
+check "MEMORY.md over 200 lines" "$(lint "$r" | grep -c '^memory/MEMORY.md: 201 lines')" 1
+head -c 25001 /dev/zero | tr '\0' c > "$m/MEMORY.md"
+check "MEMORY.md over 25 KB"   "$(lint "$r" | grep -c '^memory/MEMORY.md: 0 lines, 26 KB')" 1
 r="$tmp/twice"; mkrepo "$r"; m="$(memdir "$r")"
 printf -- '- **`preview_start` serves the MAIN checkout (2026-09-25).** text\n' > "$m/traps-browser.md"
 printf -- '- **Preview_start serves the main checkout!** copy\n- **Why:** short\n' > "$m/traps-agents.md"

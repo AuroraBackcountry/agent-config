@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 # memory-lint.sh <repo-dir>: the doctor pass's mechanical checks, cheap enough for every
-# session start. Prints one line per finding and exits 1 if any; silent, exit 0 when clean.
+# session start. Prints one line per finding on stdout and exits 1 if any; stdout silent, exit 0
+# when clean.
 #   - STATUS.md and the status docs it names against the STATUS rule (hooks/status-lint.sh)
 #   - in repos I own: CLAUDE.md a full copy of AGENTS.md (should be the one line `@AGENTS.md`),
 #     and AGENTS.md over 300 lines or 30 KB (area detail belongs in .claude/rules/)
 #   - the vault MOC holding build state: PR numbers or ids (it is an index)
-#   - auto-memory recording a STATUS-only PR ("STATUS #440"), over its 64 KB budget, or holding
-#     one trap in two files
+#   - auto-memory recording a STATUS-only PR ("STATUS #440"), a MEMORY.md past what loads each
+#     session (200 lines or 25 KB), or one trap in two files; the folder total goes to stderr as
+#     information, never a finding
 #   - in repos I own: scripts/status-lint.sh (the CI copy) differing from hooks/status-lint.sh
 # Each finding names its one fix and where it lands; a warning with no fix path is not added.
 # The judgment checks (stale sections, find-replace corruption) stay in memory-checkpoint's
@@ -17,7 +19,6 @@ repo="$(git -C "${1:-$PWD}" rev-parse --show-toplevel 2>/dev/null)" || exit 0
 [ -n "$repo" ] || exit 0
 vault="${VAULT_DIR:-$HOME/Vault}"
 memroot="${CLAUDE_PROJECTS_DIR:-$HOME/.claude/projects}"
-budget="${MEMORY_BUDGET_KB:-64}"
 found=0
 say() { printf '%s\n' "$1"; found=1; }
 
@@ -53,9 +54,17 @@ mem="$memroot/$(printf '%s' "$main" | sed 's/[^A-Za-z0-9]/-/g')/memory"
 if [ -d "$mem" ]; then
   hit="$(grep -l -E 'STATUS (PR )?#[0-9]{2,}' "$mem"/*.md 2>/dev/null | head -n 1)"
   [ -n "$hit" ] && say "memory/$(basename "$hit"): records a STATUS-only PR (git holds merges)"
-  # One budget for the folder, not per file: a per-file limit is passed by splitting the file.
-  kb=$(( $(cat "$mem"/*.md 2>/dev/null | wc -c) / 1024 ))
-  [ "$kb" -gt "$budget" ] && say "memory/: $kb KB, over the $budget KB budget (delete each entry a test or hook now enforces, or whose tool, file or code is gone; never archive by age)"
+  # The budget is what loads every session: Claude Code loads the first 200 lines or 25KB of
+  # MEMORY.md and drops the rest (code.claude.com/docs/en/memory); 25,000 bytes is the stricter
+  # reading. Other memory files load only when read, so their size is information, never a finding.
+  idx="$mem/MEMORY.md"
+  if [ -f "$idx" ]; then
+    lines=$(wc -l < "$idx" | tr -d ' '); bytes=$(wc -c < "$idx" | tr -d ' ')
+    if [ "$lines" -gt 200 ] || [ "$bytes" -gt 25000 ]; then
+      say "memory/MEMORY.md: $lines lines, $(( (bytes + 999) / 1000 )) KB, past the 200 lines or 25 KB that load each session (one short line per memory; detail goes in its topic file)"
+    fi
+  fi
+  printf 'memory/: %s KB in all (information only; only MEMORY.md loads each session)\n' "$(( $(cat "$mem"/*.md 2>/dev/null | wc -c) / 1024 ))" >&2
   # One trap, one file: the same bold bullet headline (case, punctuation and "(dates)" aside, 3+ words) in two files.
   dup="$(for f in "$mem"/*.md; do
       grep -oE '^- \*\*[^*]+\*\*' "$f" | tr 'A-Z' 'a-z' | sed -E 's/\([^)]*\)//g; s/[^a-z0-9]+/ /g; s/^ +| +$//g' \

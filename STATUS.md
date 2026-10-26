@@ -42,8 +42,8 @@ reference checkout is only as fresh as the last push + pull.
   rule via `hooks/status-lint.sh` on STATUS.md and each doc its `Status docs:` line names, a
   CLAUDE.md copy of AGENTS.md, an AGENTS.md over 300 lines / 30 KB or a stale
   `scripts/status-lint.sh` in owned repos, PR numbers or ids in the vault MOC, and in
-  auto-memory "STATUS #N", a folder over 64 KB or one trap headline in two files); silent when
-  healthy. `/save` runs status-lint before writing STATUS. Owned vs guest is one test,
+  auto-memory "STATUS #N", a `MEMORY.md` past the 200 lines or 25 KB that load each session, or
+  one trap headline in two files; the folder total is information on stderr); silent when healthy. `/save` runs status-lint before writing STATUS. Owned vs guest is one test,
   `hooks/owned.sh` (origin owner), shared by every hook.
   There is no Codex support (history has it).
   Cursor is manual: `overlays/cursor.md` exists to paste, nothing generates a bundle.
