@@ -45,6 +45,9 @@ out="$(run "$tmp/sync-ok.sh" "$tmp/h5" "$tmp/v5" "$repo")"
 check "one STATUS warning" "$(printf '%s\n' "$out" | grep -c 'break the rules in 3 place')" 1
 printf '# STATUS\n\n## Now\n\n- **Live:** phones take main'"'"'s over-the-air updates.\n' > "$repo/STATUS.md"
 check "clean STATUS is silent" "$(run "$tmp/sync-ok.sh" "$tmp/h5" "$tmp/v5" "$repo")" ""
+m="$tmp/projects/$(git -C "$repo" rev-parse --show-toplevel | sed 's/[^A-Za-z0-9]/-/g')/memory"; mkdir -p "$m"
+head -c 90000 /dev/zero | tr '\0' a > "$m/traps.md"; printf -- '- [Traps](traps.md)\n' > "$m/MEMORY.md"
+check "big trap files are silent" "$(CLAUDE_PROJECTS_DIR="$tmp/projects" run "$tmp/sync-ok.sh" "$tmp/h5" "$tmp/v5" "$repo")" ""
 
 echo
 if [ "$fails" -eq 0 ]; then echo "session-start.sh: all checks passed"; else echo "session-start.sh: $fails check(s) failed"; fi

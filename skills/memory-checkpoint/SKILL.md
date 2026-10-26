@@ -60,11 +60,13 @@ every session start). Then the judgment checks below.
   `git`/`gh` and rewrite to present-tense state. Re-derive counts (`N functions deployed`)
   from the code. A superseded banner left in place is drift: reconcile it, don't stack another.
   The vault MOC holds pointers only; a `Current state` section there gets replaced by a pointer.
-- **Memory drains:** memory-lint prints the folder total against its 64 KB budget and any trap
-  headline found in two files (keep one copy). Delete a trap when a test or hook now enforces it,
-  or when its tool, file or code is gone. Never archive by age: nothing records when a trap is
-  used, and a rare trap can be the worst one. No hand-written counts in MEMORY.md ("about 75
-  traps"): compute them or drop them.
+- **Memory drains:** the budget is what loads every session: `MEMORY.md`, of which Claude Code
+  loads only the first 200 lines or 25 KB. memory-lint flags a `MEMORY.md` past that and any trap
+  headline found in two files (keep one copy). Trap files load only when read, so they can be as
+  big as they need; the folder total is information only. Delete a trap when a test or hook now
+  enforces it, or when its tool, file or code is gone; never by size or age: nothing records when
+  a trap is used, and a rare trap can be the worst one. No hand-written counts in MEMORY.md
+  ("about 75 traps"): compute them or drop them.
 
 Report what you fixed; if nothing is off, say so.
 
