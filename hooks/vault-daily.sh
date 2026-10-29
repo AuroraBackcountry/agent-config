@@ -8,9 +8,8 @@
 # shut down).
 # EVERY run writes one status line to the log — including no-vault and cd
 # failure — so a moved vault is distinguishable from the agent not firing.
-# Always exits 0. Pure-logic paths checked by tests/vault-daily.test.sh.
-# shortcut: the push itself is untested (a real check needs a remote — mocking
-# one is fixture machinery this script doesn't earn) and fetch-free: a commit
+# Always exits 0. Checked by tests/vault-daily.test.sh, the push against local remotes.
+# shortcut: the push is fetch-free: a commit
 # reaching origin from anywhere else wedges every later push non-fast-forward
 # until a manual pull, visible here as push-failed. Single-writer vault by
 # design; upgrade path: pull --rebase before push.
@@ -61,7 +60,13 @@ fi
 
 status=no-remote
 if git remote get-url origin >/dev/null 2>&1; then
-  if git push -q origin HEAD >/dev/null 2>&1; then status=pushed; else status=push-failed; fi
+  # A run right after wake or login can beat the network; one late retry covers it.
+  if git push -q origin HEAD >/dev/null 2>&1 \
+    || { sleep "${VAULT_DAILY_RETRY_WAIT:-60}"; git push -q origin HEAD >/dev/null 2>&1; }; then
+    status=pushed
+  else
+    status=push-failed
+  fi
 fi
 [ "$committed" = ok ] || status="$committed $status"
 note "$status"
