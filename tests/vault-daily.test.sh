@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # One runnable check for hooks/vault-daily.sh — the pure-logic paths: every
 # exit writes a status line, the commit-failure branch is reported, the
-# secrets gates refuse tracked env files and key-shaped text, and a quiet day commits nothing.
-# shortcut: the push path is deliberately untested — a real check needs a
-# remote, and standing up a fake one is fixture machinery this script doesn't
-# earn. All fixtures here are temp dirs with no remote (status: no-remote).
+# secrets gates refuse tracked env files and key-shaped text, a quiet day commits nothing,
+# and the push reports pushed to a reachable remote and push-failed (after its retry) to a dead one.
+# shortcut: the remotes are local paths, so a network that comes back between tries is not
+# exercised; upgrade if the retry ever needs more than one late try.
 #
 #   bash tests/vault-daily.test.sh
 set -uo pipefail
@@ -65,6 +65,20 @@ v="$tmp/v7"; log="$tmp/log7"; mkvault "$v"
 echo "update 7a6b476c shipped; see sk-learn docs" > "$v/note.md"
 run "$v" "$log"
 check "commit landed"          "$(git -C "$v" rev-list --count HEAD)" 2
+
+echo "8. a reachable remote gets the snapshot"
+v="$tmp/v8"; log="$tmp/log8"; mkvault "$v"; git init -q --bare "$tmp/r8.git"
+git -C "$v" remote add origin "$tmp/r8.git"; echo hi > "$v/note.md"
+run "$v" "$log"
+check "status pushed"          "$(grep -c ' pushed ' "$log")" 1
+check "remote has it"          "$(git -C "$tmp/r8.git" rev-parse HEAD)" "$(git -C "$v" rev-parse HEAD)"
+
+echo "9. a dead remote is retried, then reported"
+v="$tmp/v9"; log="$tmp/log9"; mkvault "$v"
+git -C "$v" remote add origin "$tmp/missing.git"; echo hi > "$v/note.md"
+start=$SECONDS; VAULT_DAILY_RETRY_WAIT=2 run "$v" "$log"
+check "status push-failed"     "$(grep -c ' push-failed ' "$log")" 1
+check "waited before retry"    "$([ $((SECONDS - start)) -ge 2 ] && echo yes)" yes
 
 echo
 if [ "$fails" -eq 0 ]; then echo "vault-daily.sh: all checks passed"; else echo "vault-daily.sh: $fails check(s) failed"; fi
