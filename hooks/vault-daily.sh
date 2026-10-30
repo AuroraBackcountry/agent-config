@@ -30,8 +30,9 @@ cd "$vault" || { note "cd-failed ($vault)"; exit 0; }
 # This catches a FILENAME, not a secret — a key pasted into a decisions note
 # sails straight through, so trust this gate exactly as far as a name check
 # reaches. It exists because the vault's first push required a history rewrite
-# to remove precisely this class of file.
-if [ -n "$(git ls-files -- '*.env' '.env*' 2>/dev/null)" ]; then
+# to remove precisely this class of file. Pathspecs match from the root, so '.env*' alone
+# misses projects/foo/.env.local; '*/.env*' covers every depth.
+if [ -n "$(git ls-files -- '*.env' '.env*' '*/.env*' 2>/dev/null)" ]; then
   note "refused-secrets (a tracked env file; untrack it, then re-run)"
   exit 0
 fi
@@ -44,7 +45,9 @@ git add -A >/dev/null 2>&1
 # shortcut: known key shapes only (Anthropic, OpenAI, GitHub, AWS, Slack, Stripe live,
 # private keys, JWTs); a key with no fixed prefix still gets through.
 keys='sk-ant-[A-Za-z0-9_-]{20,}|sk-(proj-)?[A-Za-z0-9]{32,}|gh[pousr]_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{40,}|AKIA[0-9A-Z]{16}|xox[abprs]-[A-Za-z0-9-]{10,}|sk_live_[A-Za-z0-9]{20,}|-----BEGIN [A-Z ]*PRIVATE KEY|eyJhbGciOi[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{20,}\.'
-hits="$(git diff --cached --name-only 2>/dev/null | while IFS= read -r f; do
+# -z: git quotes a non-ASCII name ("Caf\303\251.md"), and the quoted form matches no path,
+# so without it a key in such a file was never scanned.
+hits="$(git diff --cached --name-only -z 2>/dev/null | while IFS= read -r -d '' f; do
   git diff --cached -U0 -- "$f" 2>/dev/null | grep '^+' | grep -qE -- "$keys" && printf '%s ' "$f"
 done)"
 if [ -n "$hits" ]; then

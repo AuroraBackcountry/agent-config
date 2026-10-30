@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # One runnable check for hooks/vault-daily.sh — the pure-logic paths: every
 # exit writes a status line, the commit-failure branch is reported, the
-# secrets gates refuse tracked env files and key-shaped text, a quiet day commits nothing,
+# secrets gates refuse tracked env files (at any depth) and key-shaped text (whatever the
+# file is named), a quiet day commits nothing,
 # and the push reports pushed to a reachable remote and push-failed (after its retry) to a dead one.
 # shortcut: the remotes are local paths, so a network that comes back between tries is not
 # exercised; upgrade if the retry ever needs more than one late try.
@@ -79,6 +80,21 @@ git -C "$v" remote add origin "$tmp/missing.git"; echo hi > "$v/note.md"
 start=$SECONDS; VAULT_DAILY_RETRY_WAIT=2 run "$v" "$log"
 check "status push-failed"     "$(grep -c ' push-failed ' "$log")" 1
 check "waited before retry"    "$([ $((SECONDS - start)) -ge 2 ] && echo yes)" yes
+
+echo "10. a key in a note with a non-ASCII name is still refused (git quotes such a name)"
+v="$tmp/v10"; log="$tmp/log10"; mkvault "$v"
+echo "token ghp_$(printf 'a%.0s' $(seq 36))" > "$v/Café.md"
+run "$v" "$log"
+check "refused"                "$(grep -c 'refused-secrets' "$log")" 1
+check "nothing committed"      "$(git -C "$v" rev-list --count HEAD)" 1
+
+echo "11. a tracked env file below the root trips the secrets gate"
+v="$tmp/v11"; log="$tmp/log11"; mkvault "$v"
+mkdir -p "$v/projects/foo"; echo "KEY=x" > "$v/projects/foo/.env.local"; git -C "$v" add -f projects/foo/.env.local
+echo hi > "$v/note.md"
+run "$v" "$log"
+check "refused"                "$(grep -c 'refused-secrets' "$log")" 1
+check "nothing committed"      "$(git -C "$v" rev-list --count HEAD)" 1
 
 echo
 if [ "$fails" -eq 0 ]; then echo "vault-daily.sh: all checks passed"; else echo "vault-daily.sh: $fails check(s) failed"; fi
