@@ -59,9 +59,10 @@ reference checkout is only as fresh as the last push + pull.
   it gains the block.
 - **Skills.** Three authored (`repo-intake` — cut to a 7.4 KB kernel, `memory-checkpoint`,
   `standup`), one vendored-and-forked (`defuddle`, shrunk, install line corrected to
-  `defuddle-cli`), one vendored (`graphify`), one machine-generated (`playwright-cli`,
-  produced by install.sh from the installed `@playwright/cli`, gitignored, cannot go
-  stale against the binary). `skills/` is symlinked into `~/.claude/skills`.
+  `defuddle-cli`), one vendored (`graphify`), two machine-generated (`playwright-cli`,
+  produced by install.sh from the installed `@playwright/cli`; `reverse-engineer-anything`,
+  written by `rea setup`/`rea update` from the installed `rea-agents`; both gitignored,
+  neither can go stale against its binary). `skills/` is symlinked into `~/.claude/skills`.
   `plasmic-designer` lives only in `aurora-backcountry/.claude/skills/`, the repo that uses it.
 - **Session-end roles.** `/save` is the single session-end entry point: one git
   take-stock, then STATUS.md (state) and the vault (log, decisions, MOC pointer). Its
