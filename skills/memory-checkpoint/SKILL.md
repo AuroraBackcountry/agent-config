@@ -26,7 +26,7 @@ last checkpoint, decisions and why, what is done / in progress / next, and the c
 
 ## Phase 2: Find the surfaces
 
-- **Guest repo** (`gh repo view --json viewerPermission` is not ADMIN, or the user says so):
+- **Guest repo** (`bash ~/.agents/hooks/owned.sh` exits 1, or the user says so):
   tracked files are not your surfaces. The status doc, if any, is the private `STATUS.md` in
   `~/Vault/projects/<project>/repo-local/`; no AGENTS.md focus; the doctor pass only reports.
   State goes in `repo-local/`; the MOC stays an index. No mode overrides this.

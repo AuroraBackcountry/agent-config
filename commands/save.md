@@ -10,8 +10,8 @@ memory-checkpoint's job, not this command's.
 2. Take stock once against reality: `git status`, `git diff --stat`, `git log --oneline -15`.
    Never record a claim you didn't verify.
 3. **STATUS.md** -- the full rule lives here; global rules carry a one-line summary.
-   Repos I own, plus a guest repo with a private ~/Vault/projects/<project>/repo-local/STATUS.md
-   linked into the repo: edit the vault file in place (untracked, so no PR to ride and no
+   Repos I own (`bash ~/.agents/hooks/owned.sh` exits 0), plus a guest repo with a private
+   ~/Vault/projects/<project>/repo-local/STATUS.md linked into the repo: edit the vault file in place (untracked, so no PR to ride and no
    status-queue) and still run the **Check** below. Any other guest repo: skip (state lives
    in repo-local/, never in the MOC, which stays an index). The rule covers each side file
    STATUS.md's `Status docs:` line names (a ledger, a walk list); which doc holds which part is

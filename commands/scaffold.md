@@ -1,14 +1,15 @@
 ---
 description: Lay the standard project layout into this repo (non-destructive)
 ---
-Scaffold is for repos I own. Before running it, settle ownership:
+Scaffold is for repos I own. Before running it, settle ownership with the one test every
+hook and skill uses:
 
-    gh repo view --json viewerPermission --jq .viewerPermission
+    bash ~/.agents/hooks/owned.sh && echo mine || echo guest
 
-WRITE/TRIAGE/READ means a guest repo (someone else's — I branch and PR): stop and use
-`repo-intake`'s guest mode instead. Every file scaffold lays down is a tracked-file
-change their owner has to review.
-ADMIN/MAINTAIN, no remote, or no `gh`: it's mine (ask if genuinely unsure), continue.
+guest means someone else's repo (I branch and PR): stop and use `repo-intake`'s guest
+mode instead. Every file scaffold lays down is a tracked-file change their owner has to
+review. Not gh's viewerPermission: ADMIN on a team org's repo is not ownership.
+mine (an owner on that script's list, or no remote): continue (ask if genuinely unsure).
 
 Run the scaffold script against the current project root:
 

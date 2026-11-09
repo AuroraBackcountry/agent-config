@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # owned.sh <repo-dir>: exit 0 when I own the repo, 1 for a guest repo (someone else's; I branch and PR).
-# Owned = origin's owner is in OWNED_GH_OWNERS, or no origin. The one guest-repo test every hook uses
-# (memory-lint.sh, commit-lint.sh). Not "a vault repo-local/ exists": aurora-backcountry keeps one and is mine.
+# Owned = origin's owner is in OWNED_GH_OWNERS, or no origin. The one guest-repo test: every hook
+# (memory-lint.sh, commit-lint.sh) and every skill that writes tracked files (repo-intake,
+# memory-checkpoint, /scaffold, /save) uses it. Not "a vault repo-local/ exists": aurora-backcountry
+# keeps one and is mine. Not gh's viewerPermission: I hold ADMIN on GuideOps-Platform's team repos.
 # shortcut: a fixed owner list; a new org must be added here.
 
 owners="${OWNED_GH_OWNERS:-AuroraBackcountry Aurora-Backcountry}"

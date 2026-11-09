@@ -26,11 +26,12 @@ THIS codebase — the global rules already load every session; never restate the
   folder, clone it. Neither: ask — one question.
 - **Ownership decides write targets:**
   ```bash
-  gh repo view --json viewerPermission --jq .viewerPermission
+  bash ~/.agents/hooks/owned.sh && echo mine || echo guest
   ```
-  ADMIN/MAINTAIN, or no remote at all = the user's repo; writes go to the repo.
-  WRITE/TRIAGE/READ = **guest repo**; every write is vault-first (section below).
-  No `gh` or it errors: ask "yours or someone else's?" — one question.
+  mine (an owner on that script's list, or no remote) = the user's repo; writes go to the repo.
+  guest = **guest repo**; every write is vault-first (section below). Not gh's
+  viewerPermission: ADMIN on a team org's repo is not ownership. A new org of the
+  user's that the list lacks: ask "yours or someone else's?" — one question.
 - **Mode:** no real context file (or only a scaffold stub) → **full onboard**. A
   real, filled-in AGENTS.md/CLAUDE.md/MASTER_PLAN system but no
   `~/Vault/projects/<project>/` → **wire-only**; never re-onboard or rewrite real docs
