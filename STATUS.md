@@ -22,8 +22,8 @@ Read this block first; it is the whole briefing. Under 20 lines; lines get repla
 ## Current state
 
 Public since 2026-07-26 under MIT, but not a product: the README says so outright and
-tells readers not to run `install.sh`. It is wired to this machine and changes with my
-habits; nobody has forked it.
+tells readers not to run `install.sh`. It is wired to this machine and changes with my habits;
+nobody has forked it. GitHub deletes a PR branch when it merges.
 
 Two clones on this machine, with different jobs. **`~/.agents` is the canonical clone
 and the live install** — settings.json points the hooks there, `~/.claude/skills` and
@@ -37,8 +37,9 @@ reference checkout is only as fresh as the last push + pull.
   Cowork skips user-scope imports, so an import-based global would load nothing there.
   Freshness has two mechanisms: the post-commit hook (local commits) and
   `hooks/session-start.sh` (heals pulled drift; every overwrite leaves a `.pre-sync` safety
-  copy). The same hook prints a line into the session when the last vault backup did not
-  push, none ran for 2 days, a self-heal failed in the last 7 days, or the session repo's
+  copy). The same hook prints a line into the session when the last vault backup did not push
+  (with git's reason and the command that retries it), none ran for 2 days, a self-heal failed
+  in the last 7 days, or the session repo's
   memory files fail the doctor pass's mechanical checks (`hooks/memory-lint.sh`: the STATUS
   rule via `hooks/status-lint.sh` on STATUS.md and each doc its `Status docs:` line names, a
   CLAUDE.md copy of AGENTS.md, an AGENTS.md over 300 lines / 30 KB or a stale
@@ -84,7 +85,7 @@ reference checkout is only as fresh as the last push + pull.
   and no output; guest repos skipped. `session-end.sh`: one trace entry for repo sessions only, writes no git (the
   `_sessions.log` breadcrumb is gone: nothing read it). `vault-daily.sh`: launchd agent at 17:00 commits and pushes `~/Vault` to the
   private remote (`AuroraBackcountry/vault`); one evidence line per run in
-  `~/.cache/vault-daily.log`.
+  `~/.cache/vault-daily.log`; a failed push retries once, then logs git's reason.
   The trace safety net is used: sessions read `_traces-*.md` through `/recall`, `/standup` and
   by hand, so it passes the ever-used bar.
 - **Vault.** Git-versioned with an off-machine private remote. Its history contains
@@ -122,6 +123,9 @@ reference checkout is only as fresh as the last push + pull.
   branch in `session-end.sh` — kept together by a comment. The shell side has a test;
   a prose-only edit that diverges from it is undetectable, and would split the vault
   silently (`/save` writing one key, the hook another).
+- **A status doc's ceiling caps its size, not its open work.** A walk list can trim its text to
+  fit or continue in a second named doc; infoex-api's walk list sits at the ceiling and
+  continues in a second doc, so its drain, not the lint, decides whether it shrinks.
 - No check covers `install.sh` or `sync.sh` (the PreToolUse wiring was run once against a copy
   of settings.json: wires, re-run is a no-op, an old path is replaced).
 - **commit-lint reads the repo from `git -C` or the session folder**, never from a
