@@ -25,7 +25,7 @@ if [ -f "$vault_log" ]; then
   last="$(tail -n 1 "$vault_log")"
   case "$last" in
     *" pushed HEAD="*) ;;
-    *) warn "the last vault backup did not push: \"$last\" (log: $vault_log)" ;;
+    *) warn "the last vault backup did not push: \"$last\". Retry now: bash $AGENTS_HOME/hooks/vault-daily.sh (log: $vault_log)" ;;
   esac
   [ -n "$(find "$vault_log" -mtime +2 2>/dev/null)" ] && warn "no vault backup has run for over 2 days (log: $vault_log)"
 fi

@@ -22,10 +22,12 @@ echo "1. healthy: no output"
 echo "2026-10-15 17:00:07 pushed HEAD=716cd1d" > "$tmp/v1"
 check "silent" "$(run "$tmp/sync-ok.sh" "$tmp/h1" "$tmp/v1")" ""
 
-echo "2. a failed push is reported"
-echo "2026-10-14 17:05:20 push-failed HEAD=7dd9bd2" > "$tmp/v2"
+echo "2. a failed push is reported with git's reason and the retry command"
+echo "2026-10-14 17:05:20 push-failed (fatal: could not read Username for 'https://github.com': Device not configured) HEAD=7dd9bd2" > "$tmp/v2"
 out="$(run "$tmp/sync-ok.sh" "$tmp/h2" "$tmp/v2")"
-check "one warning" "$(printf '%s\n' "$out" | grep -c 'did not push')" 1
+check "one warning"     "$(printf '%s\n' "$out" | grep -c 'did not push')" 1
+check "says why"        "$(printf '%s\n' "$out" | grep -c 'could not read Username')" 1
+check "names the retry" "$(printf '%s\n' "$out" | grep -c 'Retry now: bash .*/hooks/vault-daily.sh')" 1
 
 echo "3. a stale backup log is reported"
 echo "2026-10-01 17:00:07 pushed HEAD=abc1234" > "$tmp/v3"; touch -t 202610010000 "$tmp/v3"

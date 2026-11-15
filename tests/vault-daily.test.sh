@@ -3,7 +3,8 @@
 # exit writes a status line, the commit-failure branch is reported, the
 # secrets gates refuse tracked env files (at any depth) and key-shaped text (whatever the
 # file is named), a quiet day commits nothing,
-# and the push reports pushed to a reachable remote and push-failed (after its retry) to a dead one.
+# and the push reports pushed to a reachable remote and push-failed (after its retry, with git's
+# reason and never a URL password) to a dead one.
 # shortcut: the remotes are local paths, so a network that comes back between tries is not
 # exercised; upgrade if the retry ever needs more than one late try.
 #
@@ -80,6 +81,7 @@ git -C "$v" remote add origin "$tmp/missing.git"; echo hi > "$v/note.md"
 start=$SECONDS; VAULT_DAILY_RETRY_WAIT=2 run "$v" "$log"
 check "status push-failed"     "$(grep -c ' push-failed ' "$log")" 1
 check "waited before retry"    "$([ $((SECONDS - start)) -ge 2 ] && echo yes)" yes
+check "git's reason logged"    "$(grep -c 'push-failed (fatal: .*does not appear to be a git repository' "$log")" 1
 
 echo "10. a key in a note with a non-ASCII name is still refused (git quotes such a name)"
 v="$tmp/v10"; log="$tmp/log10"; mkvault "$v"
@@ -95,6 +97,13 @@ echo hi > "$v/note.md"
 run "$v" "$log"
 check "refused"                "$(grep -c 'refused-secrets' "$log")" 1
 check "nothing committed"      "$(git -C "$v" rev-list --count HEAD)" 1
+
+echo "12. a failed push logs git's reason, never a password from the remote URL"
+v="$tmp/v12"; log="$tmp/log12"; mkvault "$v"
+git -C "$v" remote add origin "https://ben:s3cr3t-token@127.0.0.1:9/vault.git"; echo hi > "$v/note.md"
+GIT_TERMINAL_PROMPT=0 VAULT_DAILY_RETRY_WAIT=0 run "$v" "$log"
+check "push-failed with a reason" "$(grep -c 'push-failed (.' "$log")" 1
+check "no password in the log"    "$(grep -c 's3cr3t' "$log")" 0
 
 echo
 if [ "$fails" -eq 0 ]; then echo "vault-daily.sh: all checks passed"; else echo "vault-daily.sh: $fails check(s) failed"; fi

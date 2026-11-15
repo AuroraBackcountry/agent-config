@@ -64,11 +64,15 @@ fi
 status=no-remote
 if git remote get-url origin >/dev/null 2>&1; then
   # A run right after wake or login can beat the network; one late retry covers it.
-  if git push -q origin HEAD >/dev/null 2>&1 \
-    || { sleep "${VAULT_DAILY_RETRY_WAIT:-60}"; git push -q origin HEAD >/dev/null 2>&1; }; then
+  # git's error rides into the log line, so a failed push says why instead of nothing.
+  push() { git push -q origin HEAD 2>&1 >/dev/null; }
+  if why="$(push)" || { sleep "${VAULT_DAILY_RETRY_WAIT:-60}"; why="$(push)"; }; then
     status=pushed
   else
-    status=push-failed
+    # One line, any URL credential stripped, capped: session-start.sh prints it into sessions.
+    why="$(printf '%s\n' "$why" | grep -v -e '^[[:space:]]*$' -e '^hint:' | tr '\n' ' ' \
+      | sed -E 's#://[^/@ ]+@#://#g; s/[[:space:]]+/ /g; s/ $//' | cut -c1-200)"
+    status="push-failed${why:+ ($why)}"
   fi
 fi
 [ "$committed" = ok ] || status="$committed $status"
